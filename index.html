@@ -323,19 +323,93 @@
                 "phase_2": { "name": "POS & Billing System", "color": "purple" }
             },
             "flowchart": [
-                { "id": "AUTH_01", "phase": "phase_1", "type": "screen", "name": "Login", "inputs": ["email", "password"], "outputs": ["jwt_token", "role"], "animation": "fade_in_center", "next": ["DASH_01"] },
-                { "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard", "data_sources": ["items", "stock_ledger", "alerts"], "animation": "card_stagger_load", "next": ["MASTER_01", "INWARD_01", "OUTWARD_01", "STOCK_LEDGER_01"] },
-                { "id": "MASTER_01", "phase": "phase_1", "type": "master_data", "name": "Item Master", "data_flow": { "process": "validate + save" }, "animation": "form_step_reveal", "next": ["DASH_01"] },
-                { "id": "INWARD_01", "phase": "phase_1", "type": "transaction", "name": "Inward Entry", "data_flow": { "state": "draft" }, "animation": "slide_up_form", "next": ["INWARD_02"] },
-                { "id": "INWARD_02", "phase": "phase_1", "type": "approval", "name": "Inward Approval", "actor": "Inventory Manager", "animation": "checkmark_scale_in", "next": ["STOCK_LEDGER_01"] },
-                { "id": "OUTWARD_01", "phase": "phase_1", "type": "transaction", "name": "Outward Entry", "data_flow": { "logic": "fifo_lifo" }, "animation": "slide_up_form", "next": ["OUTWARD_02"] },
-                { "id": "OUTWARD_02", "phase": "phase_1", "type": "approval", "name": "Outward Approval", "actor": "Inventory Manager", "animation": "green_tick_fade", "next": ["STOCK_LEDGER_01"] },
-                { "id": "STOCK_LEDGER_01", "phase": "phase_1", "type": "system", "name": "Inventory Ledger", "data_structure": ["opening", "in/out", "closing"], "animation": "row_expand_fade", "next": ["AUDIT_01"] },
-                { "id": "POS_01", "phase": "phase_2", "type": "screen", "name": "POS Search", "data_flow": { "fetch": "item_master" }, "animation": "search_suggestion_pop", "next": ["POS_02"] },
-                { "id": "POS_02", "phase": "phase_2", "type": "calculation", "name": "Billing Calc", "logic": ["tax", "discount"], "animation": "number_count_up", "next": ["POS_03"] },
-                { "id": "POS_03", "phase": "phase_2", "type": "payment", "name": "Payment", "methods": ["cash", "card"], "animation": "payment_success_pulse", "next": ["POS_04"] },
-                { "id": "POS_04", "phase": "phase_2", "type": "integration", "name": "POS Trigger", "action": "trigger_outward", "animation": "pulse_line", "next": ["OUTWARD_02"] },
-                { "id": "AUDIT_01", "phase": "phase_1", "type": "compliance", "name": "Audit Logs", "captures": ["timestamp", "diff"], "animation": "log_line_fade", "next": [] }
+                {
+                    "id": "AUTH_01", "phase": "phase_1", "type": "screen", "name": "Login",
+                    "inputs": ["email", "password"], "outputs": ["jwt_token", "role"], "animation": "fade_in_center", "next": ["DASH_01"],
+                    "example_data": { "email": "admin@corp.com", "role": "inventory_manager", "last_login": "2023-10-25T08:30:00Z" }
+                },
+                {
+                    "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard",
+                    "data_sources": ["items", "stock_ledger", "alerts"], "animation": "card_stagger_load", "next": ["MASTER_01", "INWARD_01", "OUTWARD_01", "STOCK_LEDGER_01"],
+                    "example_data": { "metrics": { "total_stock_value": 45000, "low_stock_items": 12, "pending_approvals": 5 } }
+                },
+                {
+                    "id": "MASTER_01", "phase": "phase_1", "type": "master_data", "name": "Item Master",
+                    "data_flow": { "process": "validate + save" }, "animation": "form_step_reveal", "next": ["DASH_01"],
+                    "example_data": { "sku": "ITM-001", "name": "Wireless Keyboard", "category": "Electronics", "unit_price": 45.00, "min_stock_level": 10 }
+                },
+                {
+                    "id": "INWARD_01", "phase": "phase_1", "type": "transaction", "name": "Inward Entry",
+                    "data_flow": { "state": "direct_commit" }, "animation": "slide_up_form", "next": ["STOCK_LEDGER_01"],
+                    "example_data": { "ref_no": "GRN-2023-001", "vendor": "TechSupplies Inc", "items": [{ "sku": "ITM-001", "qty": 50, "batch": "B101" }] }
+                },
+                {
+                    "id": "OUTWARD_01", "phase": "phase_1", "type": "transaction", "name": "Outward Entry",
+                    "data_flow": { "logic": "fifo_lifo" }, "animation": "slide_up_form", "next": ["STOCK_LEDGER_01"],
+                    "example_data": { "req_id": "REQ-505", "dest": "Retail Branch A", "items": [{ "sku": "ITM-001", "qty": 5 }] }
+                },
+                {
+                    "id": "PROFILE_01", "phase": "phase_1", "type": "compliance", "name": "User Profiling",
+                    "data_flow": { "auth": "biometric_2fa" }, "animation": "checkmark_scale_in", "next": [],
+                    "example_data": {
+                        "profiles": [
+                            { "id": "USR-001", "name": "Alex Ross", "role": "Store Manager", "level": "L5 (Full)", "status": "active" },
+                            { "id": "USR-004", "name": "Sarah Key", "role": "Supervisor", "level": "L3 (Write)", "status": "active" },
+                            { "id": "USR-009", "name": "Mike Dee", "role": "Intern", "level": "L1 (Read)", "status": "restricted" }
+                        ]
+                    }
+                },
+                {
+                    "id": "STOCK_LEDGER_01", "phase": "phase_1", "type": "system", "name": "Inventory Ledger",
+                    "data_structure": ["opening", "in/out", "closing"], "animation": "row_expand_fade", "next": ["AUDIT_01"],
+                    "example_data": { "ledger_entry": { "sku": "ITM-001", "opening": 100, "inward": 50, "outward": 5, "closing": 145 } }
+                },
+                {
+                    "id": "POS_01", "phase": "phase_2", "type": "screen", "name": "POS Search",
+                    "data_flow": { "fetch": "item_master" }, "animation": "search_suggestion_pop", "next": ["POS_02"],
+                    "example_data": { "query": "wireless k...", "results_count": 3, "top_match": { "sku": "ITM-001", "name": "Wireless Keyboard" } }
+                },
+                {
+                    "id": "POS_02", "phase": "phase_2", "type": "calculation", "name": "Billing Calc",
+                    "logic": ["tax", "discount"], "animation": "number_count_up", "next": ["POS_03"],
+                    "example_data": { "subtotal": 45.00, "tax_rate": 0.18, "tax_amt": 8.10, "discount": 0, "grand_total": 53.10 }
+                },
+                {
+                    "id": "POS_03", "phase": "phase_2", "type": "payment", "name": "Payment",
+                    "methods": ["cash", "card"], "animation": "payment_success_pulse", "next": ["POS_04"],
+                    "example_data": { "txn_id": "TXN_77382", "method": "Credit Card", "status": "SUCCESS", "auth_code": "004821" }
+                },
+                {
+                    "id": "POS_04", "phase": "phase_2", "type": "integration", "name": "POS Trigger",
+                    "action": "trigger_outward", "animation": "pulse_line", "next": ["STOCK_LEDGER_01"],
+                    "example_data": { "event": "SALES_ORDER_CONFIRMED", "payload": { "order_id": "ORD-991", "items": [] } }
+                },
+                {
+                    "id": "STORAGE_01", "phase": "phase_1", "type": "master_data", "name": "Warehouse Model",
+                    "data_flow": { "hierarchy": "aisle>shelf>bin" }, "animation": "row_expand_fade", "next": [],
+                    "example_data": {
+                        "layout": [
+                            {
+                                "zone": "Zone A (Cold)", "bins": [
+                                    { "id": "A1-01", "status": "occupied", "item": "Frozen Peas", "qty": 400 },
+                                    { "id": "A1-02", "status": "available" },
+                                    { "id": "A1-03", "status": "occupied", "item": "Ice Cream", "qty": 50 }
+                                ]
+                            },
+                            {
+                                "zone": "Zone B (General)", "bins": [
+                                    { "id": "B1-01", "status": "occupied", "item": "Rice Bags", "qty": 120 },
+                                    { "id": "B1-02", "status": "maintenance" }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "AUDIT_01", "phase": "phase_1", "type": "compliance", "name": "Audit Logs",
+                    "captures": ["timestamp", "diff"], "animation": "log_line_fade", "next": [], // Fixed syntax error here
+                    "example_data": { "log_id": "L-9921", "action": "UPDATE_STOCK", "user": "system_bot", "diff": { "old": 145, "new": 140 } }
+                }
             ]
         };
 
@@ -343,25 +417,27 @@
         const NODE_POSITIONS = {
             "AUTH_01": { x: 50, y: 300 },
             "DASH_01": { x: 250, y: 300 },
+            "PROFILE_01": { x: 250, y: 150 }, // Renamed from ROLE_01
 
             // Branch Top (Master/Inward)
             "MASTER_01": { x: 450, y: 100 },
             "INWARD_01": { x: 450, y: 220 },
-            "INWARD_02": { x: 650, y: 220 },
+            // "INWARD_02" removed
 
             // Branch Mid (Outward)
             "OUTWARD_01": { x: 450, y: 380 },
-            "OUTWARD_02": { x: 650, y: 380 }, // Convergence point for POS
+            // "OUTWARD_02" removed
 
-            // Branch End (Ledger/Audit)
-            "STOCK_LEDGER_01": { x: 850, y: 300 },
-            "AUDIT_01": { x: 1050, y: 300 },
+            // Branch End (Ledger/Audit) - Shifted Left
+            "STOCK_LEDGER_01": { x: 650, y: 300 },
+            "AUDIT_01": { x: 850, y: 300 },
 
             // Phase 2 (POS) - Bottom Flow
             "POS_01": { x: 250, y: 600 },
             "POS_02": { x: 400, y: 600 },
             "POS_03": { x: 550, y: 600 },
-            "POS_04": { x: 650, y: 520 }, // Moves up to connect to Outward Approval
+            "POS_04": { x: 650, y: 520 },
+            "STORAGE_01": { x: 850, y: 100 }, // Moved to align with new end
         };
 
         const TYPE_COLORS = {
@@ -618,6 +694,79 @@
                                             <div>
                                                 <div className="font-bold">Restricted Actor</div>
                                                 <div>Action performed by {selectedNode.actor}</div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Profiling Visualization */}
+                                    {selectedNode.id === 'PROFILE_01' && selectedNode.example_data?.profiles && (
+                                        <div className="mt-4 border-t border-slate-100 pt-4">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                <ShieldCheck size={14} /> Authorized Users
+                                            </h3>
+                                            <div className="space-y-2">
+                                                {selectedNode.example_data.profiles.map((p) => (
+                                                    <div key={p.id} className="bg-white rounded border border-slate-200 p-2 flex items-center gap-2 shadow-sm">
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white
+                                                            ${p.status === 'active' ? 'bg-blue-500' : 'bg-slate-400'}`}>
+                                                            {p.name.split(' ').map(n => n[0]).join('')}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-xs font-bold text-slate-700 truncate">{p.name}</div>
+                                                            <div className="text-[10px] text-slate-500 truncate">{p.role} • {p.level}</div>
+                                                        </div>
+                                                        <div className={`w-2 h-2 rounded-full ${p.status === 'active' ? 'bg-green-500' : 'bg-amber-400'}`}></div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Warehouse Visualization */}
+                                    {selectedNode.id === 'STORAGE_01' && selectedNode.example_data?.layout && (
+                                        <div className="mt-4 border-t border-slate-100 pt-4">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                <Layers size={14} /> Warehouse Grid
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {selectedNode.example_data.layout.map((zone, i) => (
+                                                    <div key={i} className="bg-slate-50 rounded border border-slate-200 p-2">
+                                                        <div className="text-xs font-bold text-slate-600 mb-2">{zone.zone}</div>
+                                                        <div className="grid grid-cols-3 gap-2">
+                                                            {zone.bins.map(bin => (
+                                                                <div key={bin.id}
+                                                                    className={`p-2 rounded text-[10px] flex flex-col items-center justify-center border h-16 text-center transition-colors
+                                                                    ${bin.status === 'occupied' ? 'bg-blue-100 border-blue-200 text-blue-700' :
+                                                                            bin.status === 'maintenance' ? 'bg-red-50 border-red-100 text-red-400' : 'bg-white border-slate-200 text-slate-400'}`}
+                                                                >
+                                                                    <div className="font-mono font-bold">{bin.id}</div>
+                                                                    {bin.status === 'occupied' ? (
+                                                                        <div className="scale-75 leading-tight mt-1">
+                                                                            <div className="truncate w-full">{bin.item}</div>
+                                                                            <div className="font-bold opacity-75">x{bin.qty}</div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="text-[8px] uppercase mt-1">{bin.status}</div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Example Data Payload */}
+                                    {selectedNode.example_data && (
+                                        <div className="mt-4">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                <FileText size={14} /> Example Payload
+                                            </h3>
+                                            <div className="bg-slate-900 rounded-lg p-3 overflow-x-auto border border-slate-800 shadow-inner">
+                                                <pre className="text-[10px] mono text-green-400 leading-relaxed">
+                                                    {JSON.stringify(selectedNode.example_data, null, 2)}
+                                                </pre>
                                             </div>
                                         </div>
                                     )}
