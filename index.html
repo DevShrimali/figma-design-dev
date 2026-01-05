@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Flowchart Visualization</title>
+
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Grid Pattern */
+        .bg-grid {
+            background-size: 20px 20px;
+            background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+                linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+        }
+
+        /* --- Animations from JSON --- */
+        @keyframes fade_in_center {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .anim-fade_in_center {
+            animation: fade_in_center 0.5s ease-out forwards;
+        }
+
+        @keyframes slide_up_form {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .anim-slide_up_form {
+            animation: slide_up_form 0.5s ease-out forwards;
+        }
+
+        @keyframes checkmark_scale_in {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .anim-checkmark_scale_in {
+            animation: checkmark_scale_in 0.4s ease-out forwards;
+        }
+
+        @keyframes shake_horizontal {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-5px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .anim-shake_horizontal {
+            animation: shake_horizontal 0.4s ease-in-out;
+        }
+
+        @keyframes pulse_line {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        .anim-pulse_line {
+            animation: pulse_line 1.5s infinite;
+        }
+
+        @keyframes card_stagger_load {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .anim-card_stagger_load {
+            animation: card_stagger_load 0.4s ease-out forwards;
+        }
+
+        @keyframes form_step_reveal {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .anim-form_step_reveal {
+            animation: form_step_reveal 0.4s ease-out forwards;
+        }
+
+        @keyframes row_expand_fade {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+
+            to {
+                height: auto;
+                opacity: 1;
+            }
+        }
+
+        .anim-row_expand_fade {
+            animation: row_expand_fade 0.5s ease-out forwards;
+        }
+
+        @keyframes search_suggestion_pop {
+            from {
+                transform: scaleY(0);
+                transform-origin: top;
+            }
+
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        .anim-search_suggestion_pop {
+            animation: search_suggestion_pop 0.3s ease-out forwards;
+        }
+
+        @keyframes number_count_up {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .anim-number_count_up {
+            animation: number_count_up 0.5s ease-out forwards;
+        }
+
+        @keyframes payment_success_pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+
+        .anim-payment_success_pulse {
+            animation: payment_success_pulse 1s infinite;
+        }
+
+        @keyframes green_tick_fade {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .anim-green_tick_fade {
+            animation: green_tick_fade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes skeleton_loader {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .anim-skeleton_loader {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton_loader 1.5s infinite;
+        }
+
+        @keyframes log_line_fade {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .anim-log_line_fade {
+            animation: log_line_fade 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 h-screen w-screen overflow-hidden">
+    <div id="root" class="h-full"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // --- Icons (Inline SVGs to fix React.createElement error) ---
+        const IconWrapper = ({ children, className, size = 24, style, ...props }) => (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={className}
+                style={style}
+                {...props}
+            >
+                {children}
+            </svg>
+        );
+
+        const Icons = {
+            X: (props) => <IconWrapper {...props}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></IconWrapper>,
+            Activity: (props) => <IconWrapper {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></IconWrapper>,
+            Database: (props) => <IconWrapper {...props}><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></IconWrapper>,
+            ArrowRight: (props) => <IconWrapper {...props}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></IconWrapper>,
+            Layers: (props) => <IconWrapper {...props}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></IconWrapper>,
+            ShieldCheck: (props) => <IconWrapper {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></IconWrapper>,
+            Terminal: (props) => <IconWrapper {...props}><polyline points="4 17 10 11 4 5" /><line x1="12" x2="20" y1="19" y2="19" /></IconWrapper>,
+            FileText: (props) => <IconWrapper {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></IconWrapper>,
+            Settings: (props) => <IconWrapper {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></IconWrapper>,
+            PlayCircle: (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></IconWrapper>
+        };
+
+        const { X, Activity, Database, ArrowRight, Layers, ShieldCheck, Terminal, FileText, Settings, PlayCircle } = Icons;
+
+        // --- JSON Data from Prompt ---
+        const SYSTEM_DATA = {
+            "phases": {
+                "phase_1": { "name": "Inventory Management System", "color": "blue" },
+                "phase_2": { "name": "POS & Billing System", "color": "purple" }
+            },
+            "flowchart": [
+                { "id": "AUTH_01", "phase": "phase_1", "type": "screen", "name": "Login", "inputs": ["email", "password"], "outputs": ["jwt_token", "role"], "animation": "fade_in_center", "next": ["DASH_01"] },
+                { "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard", "data_sources": ["items", "stock_ledger", "alerts"], "animation": "card_stagger_load", "next": ["MASTER_01", "INWARD_01", "OUTWARD_01", "STOCK_LEDGER_01"] },
+                { "id": "MASTER_01", "phase": "phase_1", "type": "master_data", "name": "Item Master", "data_flow": { "process": "validate + save" }, "animation": "form_step_reveal", "next": ["DASH_01"] },
+                { "id": "INWARD_01", "phase": "phase_1", "type": "transaction", "name": "Inward Entry", "data_flow": { "state": "draft" }, "animation": "slide_up_form", "next": ["INWARD_02"] },
+                { "id": "INWARD_02", "phase": "phase_1", "type": "approval", "name": "Inward Approval", "actor": "Inventory Manager", "animation": "checkmark_scale_in", "next": ["STOCK_LEDGER_01"] },
+                { "id": "OUTWARD_01", "phase": "phase_1", "type": "transaction", "name": "Outward Entry", "data_flow": { "logic": "fifo_lifo" }, "animation": "slide_up_form", "next": ["OUTWARD_02"] },
+                { "id": "OUTWARD_02", "phase": "phase_1", "type": "approval", "name": "Outward Approval", "actor": "Inventory Manager", "animation": "green_tick_fade", "next": ["STOCK_LEDGER_01"] },
+                { "id": "STOCK_LEDGER_01", "phase": "phase_1", "type": "system", "name": "Inventory Ledger", "data_structure": ["opening", "in/out", "closing"], "animation": "row_expand_fade", "next": ["AUDIT_01"] },
+                { "id": "POS_01", "phase": "phase_2", "type": "screen", "name": "POS Search", "data_flow": { "fetch": "item_master" }, "animation": "search_suggestion_pop", "next": ["POS_02"] },
+                { "id": "POS_02", "phase": "phase_2", "type": "calculation", "name": "Billing Calc", "logic": ["tax", "discount"], "animation": "number_count_up", "next": ["POS_03"] },
+                { "id": "POS_03", "phase": "phase_2", "type": "payment", "name": "Payment", "methods": ["cash", "card"], "animation": "payment_success_pulse", "next": ["POS_04"] },
+                { "id": "POS_04", "phase": "phase_2", "type": "integration", "name": "POS Trigger", "action": "trigger_outward", "animation": "pulse_line", "next": ["OUTWARD_02"] },
+                { "id": "AUDIT_01", "phase": "phase_1", "type": "compliance", "name": "Audit Logs", "captures": ["timestamp", "diff"], "animation": "log_line_fade", "next": [] }
+            ]
+        };
+
+        // --- Visual Layout Configuration (Manual for precision) ---
+        const NODE_POSITIONS = {
+            "AUTH_01": { x: 50, y: 300 },
+            "DASH_01": { x: 250, y: 300 },
+
+            // Branch Top (Master/Inward)
+            "MASTER_01": { x: 450, y: 100 },
+            "INWARD_01": { x: 450, y: 220 },
+            "INWARD_02": { x: 650, y: 220 },
+
+            // Branch Mid (Outward)
+            "OUTWARD_01": { x: 450, y: 380 },
+            "OUTWARD_02": { x: 650, y: 380 }, // Convergence point for POS
+
+            // Branch End (Ledger/Audit)
+            "STOCK_LEDGER_01": { x: 850, y: 300 },
+            "AUDIT_01": { x: 1050, y: 300 },
+
+            // Phase 2 (POS) - Bottom Flow
+            "POS_01": { x: 250, y: 600 },
+            "POS_02": { x: 400, y: 600 },
+            "POS_03": { x: 550, y: 600 },
+            "POS_04": { x: 650, y: 520 }, // Moves up to connect to Outward Approval
+        };
+
+        const TYPE_COLORS = {
+            screen: "bg-blue-100 border-blue-300 text-blue-800",
+            dashboard: "bg-indigo-100 border-indigo-300 text-indigo-800",
+            master_data: "bg-slate-100 border-slate-300 text-slate-800",
+            transaction: "bg-amber-100 border-amber-300 text-amber-800",
+            approval: "bg-pink-100 border-pink-300 text-pink-800",
+            system: "bg-emerald-100 border-emerald-300 text-emerald-800",
+            calculation: "bg-violet-100 border-violet-300 text-violet-800",
+            payment: "bg-green-100 border-green-300 text-green-800",
+            integration: "bg-orange-100 border-orange-300 text-orange-800",
+            compliance: "bg-gray-800 border-gray-600 text-gray-100",
+        };
+
+        const FlowchartApp = () => {
+            const [selectedNode, setSelectedNode] = useState(null);
+            const [hoveredNode, setHoveredNode] = useState(null);
+            const [zoom, setZoom] = useState(1);
+            const [pan, setPan] = useState({ x: 0, y: 0 });
+            const [isDragging, setIsDragging] = useState(false);
+            const dragStart = useRef({ x: 0, y: 0 });
+
+            const handleMouseDown = (e) => {
+                if (e.button !== 0) return;
+                setIsDragging(true);
+                dragStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+                // Prevent default text selection
+                e.preventDefault();
+            };
+
+            const handleMouseMove = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                setPan({
+                    x: e.clientX - dragStart.current.x,
+                    y: e.clientY - dragStart.current.y
+                });
+            };
+
+            const handleMouseUp = () => {
+                setIsDragging(false);
+            };
+
+            // Helper to get coordinates
+            const getCoords = (id) => NODE_POSITIONS[id] || { x: 0, y: 0 };
+
+            // Generate SVG Paths
+            const connections = useMemo(() => {
+                const lines = [];
+                SYSTEM_DATA.flowchart.forEach(source => {
+                    if (source.next) {
+                        source.next.forEach(targetId => {
+                            if (!NODE_POSITIONS[targetId]) return; // Skip STOCK_VIEW_01 if not in layout
+
+                            const start = getCoords(source.id);
+                            const end = getCoords(targetId);
+
+                            // Adjust start/end to be edges of the box (approx width 140, height 60)
+                            const startX = start.x + 140;
+                            const startY = start.y + 30;
+                            const endX = end.x;
+                            const endY = end.y + 30;
+
+                            // Bezier Curve Logic
+                            const controlPoint1 = { x: startX + (endX - startX) / 2, y: startY };
+                            const controlPoint2 = { x: startX + (endX - startX) / 2, y: endY };
+
+                            // Special case for loopbacks (Master -> Dash)
+                            let d = `M ${startX} ${startY} C ${controlPoint1.x} ${controlPoint1.y}, ${controlPoint2.x} ${controlPoint2.y}, ${endX} ${endY}`;
+
+                            if (source.id === 'MASTER_01' && targetId === 'DASH_01') {
+                                // Loopback curve above
+                                d = `M ${start.x + 70} ${start.y} Q ${start.x + 70} ${start.y - 40} ${start.x} ${start.y - 40} T ${end.x + 70} ${end.y}`;
+                            }
+
+                            lines.push({
+                                id: `${source.id}-${targetId}`,
+                                source: source.id,
+                                target: targetId,
+                                d: d
+                            });
+                        });
+                    }
+                });
+                return lines;
+            }, []);
+
+            return (
+                <div className="flex w-full h-full bg-slate-50 relative">
+                    {/* --- Canvas Area --- */}
+                    <div className="flex-1 overflow-hidden bg-grid relative cursor-move"
+                        onWheel={(e) => setZoom(Math.min(2, Math.max(0.5, zoom + (e.deltaY * -0.001))))}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                    >
+                        <div
+                            className="absolute top-0 left-0 transition-transform duration-75 ease-out origin-top-left"
+                            style={{
+                                width: '2000px',
+                                height: '1500px',
+                                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                                transformOrigin: '0 0'
+                            }}
+                        >
+                            {/* SVG Layer for Connections */}
+                            <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                                    </marker>
+                                    <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                                    </marker>
+                                </defs>
+                                {connections.map(line => {
+                                    const isActive = selectedNode && (line.source === selectedNode.id || line.target === selectedNode.id);
+                                    const isHovered = hoveredNode && (line.source === hoveredNode || line.target === hoveredNode);
+
+                                    return (
+                                        <g key={line.id}>
+                                            <path
+                                                d={line.d}
+                                                stroke={isActive || isHovered ? "#3b82f6" : "#cbd5e1"}
+                                                strokeWidth={isActive || isHovered ? "3" : "2"}
+                                                fill="none"
+                                                markerEnd={isActive || isHovered ? "url(#arrowhead-active)" : "url(#arrowhead)"}
+                                                className="transition-all duration-300"
+                                            />
+                                            {/* Animation for Integration or active paths */}
+                                            {isActive && (
+                                                <circle r="4" fill="#3b82f6">
+                                                    <animateMotion dur="1s" repeatCount="indefinite" path={line.d} />
+                                                </circle>
+                                            )}
+                                        </g>
+                                    );
+                                })}
+                            </svg>
+
+                            {/* Node Layer */}
+                            {SYSTEM_DATA.flowchart.map(node => {
+                                if (!NODE_POSITIONS[node.id]) return null;
+                                const pos = NODE_POSITIONS[node.id];
+                                const isSelected = selectedNode?.id === node.id;
+                                const isHovered = hoveredNode === node.id;
+                                const phaseColor = node.phase === 'phase_1' ? 'border-b-4 border-b-blue-500' : 'border-b-4 border-b-purple-500';
+
+                                return (
+                                    <div
+                                        key={node.id}
+                                        onClick={() => setSelectedNode(node)}
+                                        onMouseEnter={() => setHoveredNode(node.id)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        className={`absolute w-[140px] p-3 rounded-lg shadow-sm border bg-white cursor-pointer transition-all duration-300 z-10 hover:shadow-lg ${phaseColor} ${isSelected ? 'ring-2 ring-blue-500 scale-105 shadow-xl' : 'border-slate-200'}`}
+                                        style={{ left: pos.x, top: pos.y }}
+                                    >
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className="text-[10px] font-mono text-slate-400 uppercase">{node.id}</span>
+                                            {node.phase === 'phase_2' && <span className="w-2 h-2 rounded-full bg-purple-500"></span>}
+                                        </div>
+                                        <div className="text-xs font-bold text-slate-700 leading-tight mb-2">{node.name}</div>
+                                        <div className={`text-[10px] px-1.5 py-0.5 rounded w-fit capitalize ${TYPE_COLORS[node.type] || 'bg-slate-100 text-slate-600'}`}>
+                                            {node.type.replace('_', ' ')}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                            {/* Phase Labels */}
+                            <div className="absolute top-[50px] left-[50px] text-blue-900/20 text-6xl font-bold font-mono select-none pointer-events-none">PHASE 1: INVENTORY</div>
+                            <div className="absolute top-[680px] left-[50px] text-purple-900/20 text-6xl font-bold font-mono select-none pointer-events-none">PHASE 2: POS</div>
+                        </div>
+                    </div>
+
+                    {/* --- Inspector Panel (Right) --- */}
+                    <div className="w-80 bg-white border-l border-slate-200 shadow-xl flex flex-col z-20">
+                        {selectedNode ? (
+                            <>
+                                <div className="p-6 border-b border-slate-100 bg-slate-50">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className="font-mono text-xs font-bold text-slate-400 bg-white border border-slate-200 px-2 py-1 rounded">{selectedNode.id}</span>
+                                        <button onClick={() => setSelectedNode(null)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
+                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-800 mb-1">{selectedNode.name}</h2>
+                                    <div className="flex gap-2">
+                                        <span className={`text-xs px-2 py-0.5 rounded-full capitalize border ${TYPE_COLORS[selectedNode.type]}`}>
+                                            {selectedNode.type.replace('_', ' ')}
+                                        </span>
+                                        <span className={`text-xs px-2 py-0.5 rounded-full border ${selectedNode.phase === 'phase_1' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-purple-50 text-purple-600 border-purple-200'}`}>
+                                            {SYSTEM_DATA.phases[selectedNode.phase].name.split(' ')[0]}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                                    {/* Animation Preview */}
+                                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                                        <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-slate-700">
+                                            <PlayCircle size={16} className="text-blue-500" />
+                                            Micro-Animation
+                                        </div>
+                                        <div className="h-24 bg-white rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden relative">
+                                            <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:8px_8px] opacity-50"></div>
+                                            {/* Key Feature: Dynamic Animation Keyframe Injection */}
+                                            <div key={selectedNode.id} className={`w-12 h-12 bg-blue-500 rounded-lg shadow-lg flex items-center justify-center text-white anim-${selectedNode.animation}`}>
+                                                <Activity size={20} />
+                                            </div>
+                                        </div>
+                                        <div className="text-center mt-2 text-xs font-mono text-slate-400">{selectedNode.animation}</div>
+                                    </div>
+
+                                    {/* Data Logic */}
+                                    {(selectedNode.inputs || selectedNode.data_sources || selectedNode.data_flow) && (
+                                        <div>
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                <Database size={14} /> Data Flow
+                                            </h3>
+                                            <div className="space-y-2">
+                                                {selectedNode.inputs && (
+                                                    <div className="text-sm">
+                                                        <span className="font-semibold text-slate-600">Inputs:</span>
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {selectedNode.inputs.map(i => <span key={i} className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-xs">{i}</span>)}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {selectedNode.outputs && (
+                                                    <div className="text-sm">
+                                                        <span className="font-semibold text-slate-600">Outputs:</span>
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {selectedNode.outputs.map(i => <span key={i} className="px-1.5 py-0.5 bg-green-50 text-green-700 rounded font-mono text-xs">{i}</span>)}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {selectedNode.data_sources && (
+                                                    <div className="text-sm">
+                                                        <span className="font-semibold text-slate-600">Sources:</span>
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {selectedNode.data_sources.map(i => <span key={i} className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded font-mono text-xs">{i}</span>)}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Actor/Logic */}
+                                    {selectedNode.actor && (
+                                        <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 text-sm text-amber-900 flex items-start gap-2">
+                                            <ShieldCheck size={16} className="mt-0.5 shrink-0" />
+                                            <div>
+                                                <div className="font-bold">Restricted Actor</div>
+                                                <div>Action performed by {selectedNode.actor}</div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
+                                <Layers size={48} strokeWidth={1} className="mb-4 opacity-50" />
+                                <h3 className="font-semibold text-slate-600">Interactive Flowchart</h3>
+                                <p className="text-sm mt-2">Click on any node in the diagram to inspect its logic, data schema, and animation style.</p>
+                                <div className="mt-8 text-xs font-mono bg-slate-50 p-3 rounded border border-slate-100 text-left w-full">
+                                    <div className="font-bold mb-1">Legend:</div>
+                                    <div className="flex items-center gap-2 mb-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Phase 1 (Inventory)</div>
+                                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500"></span> Phase 2 (POS)</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<FlowchartApp />);
+    </script>
+</body>
+
+</html>
