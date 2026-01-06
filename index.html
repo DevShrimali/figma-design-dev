@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Flowchart Visualization</title>
+    <title>System Full Flow Visualization</title>
 
     <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -37,7 +37,7 @@
                 linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
         }
 
-        /* --- Animations from JSON --- */
+        /* --- Animations --- */
         @keyframes fade_in_center {
             from {
                 opacity: 0;
@@ -86,78 +86,6 @@
 
         .anim-checkmark_scale_in {
             animation: checkmark_scale_in 0.4s ease-out forwards;
-        }
-
-        @keyframes shake_horizontal {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            20%,
-            60% {
-                transform: translateX(-5px);
-            }
-
-            40%,
-            80% {
-                transform: translateX(5px);
-            }
-        }
-
-        .anim-shake_horizontal {
-            animation: shake_horizontal 0.4s ease-in-out;
-        }
-
-        @keyframes pulse_line {
-            0% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.5;
-            }
-        }
-
-        .anim-pulse_line {
-            animation: pulse_line 1.5s infinite;
-        }
-
-        @keyframes card_stagger_load {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .anim-card_stagger_load {
-            animation: card_stagger_load 0.4s ease-out forwards;
-        }
-
-        @keyframes form_step_reveal {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .anim-form_step_reveal {
-            animation: form_step_reveal 0.4s ease-out forwards;
         }
 
         @keyframes row_expand_fade {
@@ -225,36 +153,22 @@
             animation: payment_success_pulse 1s infinite;
         }
 
-        @keyframes green_tick_fade {
+        @keyframes pulse_line {
             0% {
-                opacity: 0;
-                transform: scale(0.5);
+                opacity: 0.5;
             }
 
-            100% {
+            50% {
                 opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .anim-green_tick_fade {
-            animation: green_tick_fade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes skeleton_loader {
-            0% {
-                background-position: 200% 0;
             }
 
             100% {
-                background-position: -200% 0;
+                opacity: 0.5;
             }
         }
 
-        .anim-skeleton_loader {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: skeleton_loader 1.5s infinite;
+        .anim-pulse_line {
+            animation: pulse_line 1.5s infinite;
         }
 
         @keyframes log_line_fade {
@@ -272,6 +186,54 @@
         .anim-log_line_fade {
             animation: log_line_fade 0.3s ease-out forwards;
         }
+
+        @keyframes form_step_reveal {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .anim-form_step_reveal {
+            animation: form_step_reveal 0.4s ease-out forwards;
+        }
+
+        @keyframes green_tick_fade {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .anim-green_tick_fade {
+            animation: green_tick_fade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes card_stagger_load {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .anim-card_stagger_load {
+            animation: card_stagger_load 0.4s ease-out forwards;
+        }
     </style>
 </head>
 
@@ -281,169 +243,284 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
-        // --- Icons (Inline SVGs to fix React.createElement error) ---
+        // --- Icons ---
         const IconWrapper = ({ children, className, size = 24, style, ...props }) => (
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width={size}
-                height={size}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={className}
-                style={style}
-                {...props}
-            >
-                {children}
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style} {...props}>{children}</svg>
         );
 
         const Icons = {
             X: (props) => <IconWrapper {...props}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></IconWrapper>,
             Activity: (props) => <IconWrapper {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></IconWrapper>,
             Database: (props) => <IconWrapper {...props}><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></IconWrapper>,
-            ArrowRight: (props) => <IconWrapper {...props}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></IconWrapper>,
-            Layers: (props) => <IconWrapper {...props}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></IconWrapper>,
             ShieldCheck: (props) => <IconWrapper {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></IconWrapper>,
-            Terminal: (props) => <IconWrapper {...props}><polyline points="4 17 10 11 4 5" /><line x1="12" x2="20" y1="19" y2="19" /></IconWrapper>,
+            Layers: (props) => <IconWrapper {...props}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></IconWrapper>,
             FileText: (props) => <IconWrapper {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></IconWrapper>,
-            Settings: (props) => <IconWrapper {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></IconWrapper>,
-            PlayCircle: (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></IconWrapper>
+            PlayCircle: (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></IconWrapper>,
+            ArrowRight: (props) => <IconWrapper {...props}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></IconWrapper>,
+            Crown: (props) => <IconWrapper {...props}><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" /></IconWrapper>
         };
 
-        const { X, Activity, Database, ArrowRight, Layers, ShieldCheck, Terminal, FileText, Settings, PlayCircle } = Icons;
+        const { X, Activity, Database, ShieldCheck, Layers, FileText, PlayCircle, ArrowRight, Crown } = Icons;
 
-        // --- JSON Data from Prompt ---
+        // --- JSON Data: EXPANDED DETAILED FLOW WITH EXAMPLES ---
         const SYSTEM_DATA = {
             "phases": {
                 "phase_1": { "name": "Inventory Management System", "color": "blue" },
                 "phase_2": { "name": "POS & Billing System", "color": "purple" }
             },
             "flowchart": [
+                // --- AUTHENTICATION ---
+                { "id": "START", "phase": "phase_1", "type": "system", "name": "Start System", "animation": "fade_in_center", "next": ["AUTH_01"] },
                 {
-                    "id": "AUTH_01", "phase": "phase_1", "type": "screen", "name": "Login",
-                    "inputs": ["email", "password"], "outputs": ["jwt_token", "role"], "animation": "fade_in_center", "next": ["DASH_01"],
-                    "example_data": { "email": "admin@corp.com", "role": "inventory_manager", "last_login": "2023-10-25T08:30:00Z" }
+                    "id": "AUTH_01", "phase": "phase_1", "type": "screen", "name": "Login Screen",
+                    "inputs": ["email", "password"], "animation": "fade_in_center", "next": ["AUTH_VAL"],
+                    "example_data": { "email": "employee@store.com", "password": "*****" }
                 },
                 {
-                    "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard",
-                    "data_sources": ["items", "stock_ledger", "alerts"], "animation": "card_stagger_load", "next": ["MASTER_01", "INWARD_01", "OUTWARD_01", "STOCK_LEDGER_01"],
-                    "example_data": { "metrics": { "total_stock_value": 45000, "low_stock_items": 12, "pending_approvals": 5 } }
+                    "id": "AUTH_VAL", "phase": "phase_1", "type": "system", "name": "Validate Creds",
+                    "data_flow": { "check": "db_hash_match" }, "animation": "pulse_line", "next": ["PROFILE_01"],
+                    "example_data": { "user_id": "EMP-882", "role": "MANAGER", "auth_status": "SUCCESS" }
+                },
+
+                // --- DASHBOARD ---
+                { "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard", "data_sources": ["items", "stock_ledger"], "animation": "card_stagger_load", "next": ["VENDOR_MST", "ITEM_MST", "PO_GEN", "SO_GEN", "STOCK_VIEW_01"], "example_data": { "widgets": { "low_stock": 5, "todays_sales": 12000 } } },
+
+                // --- MASTER DATA WING ---
+                {
+                    "id": "VENDOR_MST", "phase": "phase_1", "type": "master_data", "name": "Vendor Master",
+                    "animation": "form_step_reveal", "next": ["ITEM_MST"],
+                    "example_data": { "id": "V-001", "name": "Acme Supplies", "term": "Net 30" }
                 },
                 {
-                    "id": "MASTER_01", "phase": "phase_1", "type": "master_data", "name": "Item Master",
-                    "data_flow": { "process": "validate + save" }, "animation": "form_step_reveal", "next": ["DASH_01"],
-                    "example_data": { "sku": "ITM-001", "name": "Wireless Keyboard", "category": "Electronics", "unit_price": 45.00, "min_stock_level": 10 }
+                    "id": "ITEM_MST", "phase": "phase_1", "type": "master_data", "name": "Item Master",
+                    "inputs": ["sku", "name", "price"], "animation": "form_step_reveal", "next": ["MASTER_VAL"],
+                    "example_data": { "sku": "NIKE-AIR-01", "name": "Running Shoes", "price": 120.00 }
                 },
                 {
-                    "id": "INWARD_01", "phase": "phase_1", "type": "transaction", "name": "Inward Entry",
-                    "data_flow": { "state": "direct_commit" }, "animation": "slide_up_form", "next": ["STOCK_LEDGER_01"],
-                    "example_data": { "ref_no": "GRN-2023-001", "vendor": "TechSupplies Inc", "items": [{ "sku": "ITM-001", "qty": 50, "batch": "B101" }] }
-                },
-                {
-                    "id": "OUTWARD_01", "phase": "phase_1", "type": "transaction", "name": "Outward Entry",
-                    "data_flow": { "logic": "fifo_lifo" }, "animation": "slide_up_form", "next": ["STOCK_LEDGER_01"],
-                    "example_data": { "req_id": "REQ-505", "dest": "Retail Branch A", "items": [{ "sku": "ITM-001", "qty": 5 }] }
-                },
-                {
-                    "id": "PROFILE_01", "phase": "phase_1", "type": "compliance", "name": "User Profiling",
-                    "data_flow": { "auth": "biometric_2fa" }, "animation": "checkmark_scale_in", "next": [],
-                    "example_data": {
-                        "profiles": [
-                            { "id": "USR-001", "name": "Alex Ross", "role": "Store Manager", "level": "L5 (Full)", "status": "active" },
-                            { "id": "USR-004", "name": "Sarah Key", "role": "Supervisor", "level": "L3 (Write)", "status": "active" },
-                            { "id": "USR-009", "name": "Mike Dee", "role": "Intern", "level": "L1 (Read)", "status": "restricted" }
-                        ]
-                    }
-                },
-                {
-                    "id": "STOCK_LEDGER_01", "phase": "phase_1", "type": "system", "name": "Inventory Ledger",
-                    "data_structure": ["opening", "in/out", "closing"], "animation": "row_expand_fade", "next": ["AUDIT_01", "STORAGE_01"],
-                    "example_data": { "ledger_entry": { "sku": "ITM-001", "opening": 100, "inward": 50, "outward": 5, "closing": 145 } }
-                },
-                {
-                    "id": "POS_01", "phase": "phase_2", "type": "screen", "name": "POS Search",
-                    "data_flow": { "fetch": "item_master" }, "animation": "search_suggestion_pop", "next": ["POS_02"],
-                    "example_data": { "query": "wireless k...", "results_count": 3, "top_match": { "sku": "ITM-001", "name": "Wireless Keyboard" } }
-                },
-                {
-                    "id": "POS_02", "phase": "phase_2", "type": "calculation", "name": "Billing Calc",
-                    "logic": ["tax", "discount"], "animation": "number_count_up", "next": ["POS_03"],
-                    "example_data": { "subtotal": 45.00, "tax_rate": 0.18, "tax_amt": 8.10, "discount": 0, "grand_total": 53.10 }
-                },
-                {
-                    "id": "POS_03", "phase": "phase_2", "type": "payment", "name": "Payment",
-                    "methods": ["cash", "card"], "animation": "payment_success_pulse", "next": ["POS_04"],
-                    "example_data": { "txn_id": "TXN_77382", "method": "Credit Card", "status": "SUCCESS", "auth_code": "004821" }
-                },
-                {
-                    "id": "POS_04", "phase": "phase_2", "type": "integration", "name": "POS Trigger",
-                    "action": "trigger_outward", "animation": "pulse_line", "next": ["STOCK_LEDGER_01"],
-                    "example_data": { "event": "SALES_ORDER_CONFIRMED", "payload": { "order_id": "ORD-991", "items": [] } }
+                    "id": "MASTER_VAL", "phase": "phase_1", "type": "calculation", "name": "Duplication Check",
+                    "logic": ["exists(sku)"], "animation": "pulse_line", "next": ["STORAGE_01"],
+                    "example_data": { "sku_check": "NIKE-AIR-01", "is_duplicate": false }
                 },
                 {
                     "id": "STORAGE_01", "phase": "phase_1", "type": "master_data", "name": "Warehouse Model",
-                    "data_flow": { "hierarchy": "aisle>shelf>bin" }, "animation": "row_expand_fade", "next": [],
+                    "animation": "fade_in_center", "next": ["STOCK_LEDGER_01"],
                     "example_data": {
-                        "layout": [
+                        "warehouses": [
                             {
-                                "zone": "Zone A (Cold)", "bins": [
-                                    { "id": "A1-01", "status": "occupied", "item": "Frozen Peas", "qty": 400 },
-                                    { "id": "A1-02", "status": "available" },
-                                    { "id": "A1-03", "status": "occupied", "item": "Ice Cream", "qty": 50 }
-                                ]
-                            },
-                            {
-                                "zone": "Zone B (General)", "bins": [
-                                    { "id": "B1-01", "status": "occupied", "item": "Rice Bags", "qty": 120 },
-                                    { "id": "B1-02", "status": "maintenance" }
+                                "name": "Central Hub",
+                                "zones": [
+                                    {
+                                        "name": "Zone A (Electronics)",
+                                        "racks": [
+                                            {
+                                                "id": "R1", "bins": [
+                                                    { "id": "A-R1-01", "status": "occupied", "item": "Laptop" },
+                                                    { "id": "A-R1-02", "status": "empty" }
+                                                ]
+                                            },
+                                            {
+                                                "id": "R2", "bins": [
+                                                    { "id": "A-R2-01", "status": "occupied", "item": "Monitor" },
+                                                    { "id": "A-R2-02", "status": "maintenance" }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "Zone B (Apparel)",
+                                        "racks": [
+                                            {
+                                                "id": "R1", "bins": [
+                                                    { "id": "B-R1-01", "status": "occupied", "item": "Jeans" },
+                                                    { "id": "B-R1-02", "status": "occupied", "item": "T-Shirt" }
+                                                ]
+                                            }
+                                        ]
+                                    }
                                 ]
                             }
                         ]
                     }
                 },
+
+                // --- VIEW STOCK ---
+                { "id": "STOCK_VIEW_01", "phase": "phase_1", "type": "screen", "name": "View Stock", "animation": "card_stagger_load", "next": [], "example_data": { "filter": "Category=Shoes", "results": 45 } },
+
+                // --- INWARD PROCESS (DETAILED) ---
+                {
+                    "id": "PO_GEN", "phase": "phase_1", "type": "transaction", "name": "Raise PO",
+                    "inputs": ["vendor", "items"], "animation": "slide_up_form", "next": ["GATE_IN"],
+                    "example_data": { "po_id": "PO-9921", "status": "ISSUED" }
+                },
+                {
+                    "id": "GATE_IN", "phase": "phase_1", "type": "transaction", "name": "Gate Entry",
+                    "inputs": ["vehicle_no", "driver"], "animation": "slide_up_form", "next": ["INWARD_ENTRY"],
+                    "example_data": { "gate_pass": "GP-101", "vehicle": "MH-04-AB-1234" }
+                },
+                {
+                    "id": "INWARD_ENTRY", "phase": "phase_1", "type": "transaction", "name": "Inward GRN",
+                    "inputs": ["po_ref", "challan"], "animation": "slide_up_form", "next": ["INWARD_QC"],
+                    "example_data": { "grn_id": "GRN-772", "items_received": 50 }
+                },
+                {
+                    "id": "INWARD_QC", "phase": "phase_1", "type": "approval", "name": "Quality Check",
+                    "actor": "QC Inspector", "animation": "checkmark_scale_in", "next": ["PUTAWAY"],
+                    "example_data": { "qc_id": "QC-112", "defects": 0, "verdict": "PASS" }
+                },
+                {
+                    "id": "PUTAWAY", "phase": "phase_1", "type": "transaction", "name": "Bin Putaway",
+                    "data_flow": { "assign": "bin_id" }, "animation": "slide_up_form", "next": ["STOCK_LEDGER_01"],
+                    "example_data": { "item": "Nike Air", "target_bin": "A-12" }
+                },
+
+                // --- OUTWARD PROCESS (DETAILED) ---
+                {
+                    "id": "SO_GEN", "phase": "phase_1", "type": "transaction", "name": "Sales Order",
+                    "inputs": ["customer", "items"], "animation": "slide_up_form", "next": ["ALLOC_CHECK"],
+                    "example_data": { "so_id": "SO-551", "customer": "John Doe" }
+                },
+                {
+                    "id": "ALLOC_CHECK", "phase": "phase_1", "type": "calculation", "name": "Stock Alloc",
+                    "logic": ["stock >= req"], "animation": "number_count_up", "next": ["PICK_GEN"],
+                    "example_data": { "available": 50, "allocated": 2 }
+                },
+                {
+                    "id": "PICK_GEN", "phase": "phase_1", "type": "transaction", "name": "Pick List",
+                    "data_flow": { "output": "pdf_slip" }, "animation": "slide_up_form", "next": ["PACKING"],
+                    "example_data": { "pick_id": "APK-11", "picker": "Bob" }
+                },
+                {
+                    "id": "PACKING", "phase": "phase_1", "type": "transaction", "name": "Packing",
+                    "inputs": ["box_size", "label"], "animation": "slide_up_form", "next": ["DISPATCH"],
+                    "example_data": { "box_id": "BX-90", "weight": "2kg" }
+                },
+                {
+                    "id": "DISPATCH", "phase": "phase_1", "type": "transaction", "name": "Dispatch",
+                    "inputs": ["courier", "awb"], "animation": "green_tick_fade", "next": ["STOCK_LEDGER_01"],
+                    "example_data": { "awb": "FEDEX-112233", "shipped": true }
+                },
+
+                // --- CORE SYSTEM & PROFILING ---
+                {
+                    "id": "PROFILE_01", "phase": "phase_1", "type": "compliance", "name": "User Profiling",
+                    "animation": "fade_in_center", "next": ["DASH_01"],
+                    "example_data": { "profiles": [{ "role": "MANAGER", "access": "FULL" }] }
+                },
+                {
+                    "id": "STOCK_LEDGER_01", "phase": "phase_1", "type": "system", "name": "Inv Ledger",
+                    "data_structure": ["opening", "in/out", "closing"], "animation": "row_expand_fade", "next": ["AUDIT_01"],
+                    "example_data": { "txn": "Stock Mvmnt", "qty": -2 }
+                },
                 {
                     "id": "AUDIT_01", "phase": "phase_1", "type": "compliance", "name": "Audit Logs",
-                    "captures": ["timestamp", "diff"], "animation": "log_line_fade", "next": [], // Fixed syntax error here
-                    "example_data": { "log_id": "L-9921", "action": "UPDATE_STOCK", "user": "system_bot", "diff": { "old": 145, "new": 140 } }
+                    "captures": ["before", "after", "user"], "animation": "log_line_fade", "next": ["END_AUDIT"],
+                    "example_data": { "log": "Action by User A" }
+                },
+                { "id": "END_AUDIT", "phase": "phase_1", "type": "system", "name": "Complete", "animation": "fade_in_center", "next": [] },
+
+                // --- PHASE 2: POS FLOW ---
+                { "id": "POS_START", "phase": "phase_2", "type": "system", "name": "POS Start", "animation": "fade_in_center", "next": ["POS_01"] },
+                {
+                    "id": "POS_01", "phase": "phase_2", "type": "screen", "name": "Item Search",
+                    "inputs": ["barcode"], "animation": "search_suggestion_pop", "next": ["POS_STOCK"],
+                    "example_data": { "scan": "88092281" }
+                },
+                {
+                    "id": "POS_STOCK", "phase": "phase_2", "type": "system", "name": "Stock Check",
+                    "data_flow": { "fetch": "qty" }, "animation": "pulse_line", "next": ["POS_ADD"],
+                    "example_data": { "found": 48 }
+                },
+                {
+                    "id": "POS_ADD", "phase": "phase_2", "type": "transaction", "name": "Add to Cart",
+                    "animation": "card_stagger_load", "next": ["POS_DISC"],
+                    "example_data": { "total": 120.00 }
+                },
+                {
+                    "id": "POS_DISC", "phase": "phase_2", "type": "calculation", "name": "Coupons",
+                    "logic": ["validate"], "animation": "number_count_up", "next": ["POS_TAX"],
+                    "example_data": { "disc": 12.00 }
+                },
+                {
+                    "id": "POS_TAX", "phase": "phase_2", "type": "calculation", "name": "Tax Calc",
+                    "logic": ["gst_18"], "animation": "number_count_up", "next": ["POS_PAY"],
+                    "example_data": { "tax": 19.44 }
+                },
+                {
+                    "id": "POS_PAY", "phase": "phase_2", "type": "payment", "name": "Payment",
+                    "methods": ["card", "upi"], "animation": "slide_up_form", "next": ["POS_GATE"],
+                    "example_data": { "amt": 127.44 }
+                },
+                {
+                    "id": "POS_GATE", "phase": "phase_2", "type": "integration", "name": "Gateway",
+                    "action": "auth", "animation": "pulse_line", "next": ["POS_RCPT"],
+                    "example_data": { "status": "OK" }
+                },
+                {
+                    "id": "POS_RCPT", "phase": "phase_2", "type": "screen", "name": "Receipt",
+                    "animation": "fade_in_center", "next": ["POS_SYNC"],
+                    "example_data": { "print": "OK" }
+                },
+                {
+                    "id": "POS_SYNC", "phase": "phase_2", "type": "integration", "name": "Inv Sync",
+                    "action": "api_post", "animation": "pulse_line", "next": ["SO_GEN"],
+                    "example_data": { "sync": "done" }
                 }
             ]
         };
 
-        // --- Visual Layout Configuration (Manual for precision) ---
         const NODE_POSITIONS = {
-            "AUTH_01": { x: 50, y: 300 },
-            "DASH_01": { x: 250, y: 300 },
-            "PROFILE_01": { x: 250, y: 150 }, // Renamed from ROLE_01
+            // --- CENTER (350) ---
+            "START": { x: 350, y: 50 },
+            "AUTH_01": { x: 350, y: 150 },
+            "AUTH_VAL": { x: 350, y: 250 },
+            "DASH_01": { x: 350, y: 380 },
 
-            // Branch Top (Master/Inward)
-            "MASTER_01": { x: 450, y: 100 },
-            "INWARD_01": { x: 450, y: 220 },
-            // "INWARD_02" removed
+            // --- LEFT WING: MASTERS (50) ---
+            "VENDOR_MST": { x: 50, y: 380 },
+            "ITEM_MST": { x: 50, y: 480 },
+            "MASTER_VAL": { x: 50, y: 580 },
+            "STORAGE_01": { x: 50, y: 700 },
 
-            // Branch Mid (Outward)
-            "OUTWARD_01": { x: 450, y: 380 },
-            // "OUTWARD_02" removed
+            // --- RIGHT WING: VIEW (650) ---
+            "STOCK_VIEW_01": { x: 650, y: 380 },
+            "PROFILE_01": { x: 650, y: 150 },
 
-            // Branch End (Ledger/Audit) - Shifted Left
-            "STOCK_LEDGER_01": { x: 650, y: 300 },
-            "AUDIT_01": { x: 850, y: 300 },
+            // --- INWARD CHAIN (200) ---
+            "PO_GEN": { x: 200, y: 550 },
+            "GATE_IN": { x: 200, y: 650 },
+            "INWARD_ENTRY": { x: 200, y: 750 },
+            "INWARD_QC": { x: 200, y: 850 },
+            "PUTAWAY": { x: 200, y: 950 },
 
-            // Phase 2 (POS) - Bottom Flow
-            "POS_01": { x: 250, y: 600 },
-            "POS_02": { x: 400, y: 600 },
-            "POS_03": { x: 550, y: 600 },
-            "POS_04": { x: 650, y: 520 },
-            "STORAGE_01": { x: 850, y: 100 }, // Moved to align with new end
+            // --- OUTWARD CHAIN (550) ---
+            "SO_GEN": { x: 550, y: 550 },
+            "ALLOC_CHECK": { x: 550, y: 650 },
+            "PICK_GEN": { x: 550, y: 750 },
+            "PACKING": { x: 550, y: 850 },
+            "DISPATCH": { x: 550, y: 950 },
+
+            // --- MERGE POINT ---
+            "STOCK_LEDGER_01": { x: 350, y: 1100 },
+            "AUDIT_01": { x: 350, y: 1250 },
+            "END_AUDIT": { x: 350, y: 1400 },
+
+            // --- POS FLOW (900) ---
+            "POS_START": { x: 900, y: 50 },
+            "POS_01": { x: 900, y: 150 },
+            "POS_STOCK": { x: 900, y: 250 },
+            "POS_ADD": { x: 900, y: 350 },
+            "POS_DISC": { x: 900, y: 450 },
+            "POS_TAX": { x: 900, y: 550 },
+            "POS_PAY": { x: 900, y: 650 },
+            "POS_GATE": { x: 900, y: 750 },
+            "POS_RCPT": { x: 900, y: 850 },
+            "POS_SYNC": { x: 900, y: 950 },
         };
 
         const TYPE_COLORS = {
             screen: "bg-blue-100 border-blue-300 text-blue-800",
             dashboard: "bg-indigo-100 border-indigo-300 text-indigo-800",
-            master_data: "bg-slate-100 border-slate-300 text-slate-800",
+            master_data: "bg-amber-100 border-amber-400 text-amber-900 font-bold shadow-amber-200/50",
             transaction: "bg-amber-100 border-amber-300 text-amber-800",
             approval: "bg-pink-100 border-pink-300 text-pink-800",
             system: "bg-emerald-100 border-emerald-300 text-emerald-800",
@@ -453,11 +530,20 @@
             compliance: "bg-gray-800 border-gray-600 text-gray-100",
         };
 
+        const MODULES = {
+            ALL: [],
+            INWARD: ['PO_GEN', 'GATE_IN', 'INWARD_ENTRY', 'INWARD_QC', 'PUTAWAY'],
+            OUTWARD: ['SO_GEN', 'ALLOC_CHECK', 'PICK_GEN', 'PACKING', 'DISPATCH'],
+            POS: ['POS_START', 'POS_01', 'POS_STOCK', 'POS_ADD', 'POS_DISC', 'POS_TAX', 'POS_PAY', 'POS_GATE', 'POS_RCPT', 'POS_SYNC'],
+            ADMIN: ['START', 'AUTH_01', 'AUTH_VAL', 'DASH_01', 'VENDOR_MST', 'ITEM_MST', 'MASTER_VAL', 'STORAGE_01', 'STOCK_VIEW_01', 'PROFILE_01', 'STOCK_LEDGER_01', 'AUDIT_01', 'END_AUDIT']
+        };
+
         const FlowchartApp = () => {
             const [selectedNode, setSelectedNode] = useState(null);
+            const [activeModule, setActiveModule] = useState('ALL');
             const [hoveredNode, setHoveredNode] = useState(null);
-            const [zoom, setZoom] = useState(1);
-            const [pan, setPan] = useState({ x: 0, y: 0 });
+            const [zoom, setZoom] = useState(0.8);
+            const [pan, setPan] = useState({ x: 50, y: 50 });
             const [isDragging, setIsDragging] = useState(false);
             const dragStart = useRef({ x: 0, y: 0 });
 
@@ -465,111 +551,88 @@
                 if (e.button !== 0) return;
                 setIsDragging(true);
                 dragStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
-                // Prevent default text selection
                 e.preventDefault();
             };
 
             const handleMouseMove = (e) => {
                 if (!isDragging) return;
                 e.preventDefault();
-                setPan({
-                    x: e.clientX - dragStart.current.x,
-                    y: e.clientY - dragStart.current.y
-                });
+                setPan({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y });
             };
 
-            const handleMouseUp = () => {
-                setIsDragging(false);
-            };
+            const handleMouseUp = () => setIsDragging(false);
 
-            // Helper to get coordinates
             const getCoords = (id) => NODE_POSITIONS[id] || { x: 0, y: 0 };
 
-            // Generate SVG Paths
             const connections = useMemo(() => {
                 const lines = [];
                 SYSTEM_DATA.flowchart.forEach(source => {
                     if (source.next) {
                         source.next.forEach(targetId => {
-                            if (!NODE_POSITIONS[targetId]) return; // Skip STOCK_VIEW_01 if not in layout
-
+                            if (!NODE_POSITIONS[targetId]) return;
                             const start = getCoords(source.id);
                             const end = getCoords(targetId);
+                            const startX = start.x + 70; // Center (width 140/2)
+                            const startY = start.y + 60; // Bottom
+                            const endX = end.x + 70; // Center
+                            const endY = end.y; // Top
 
-                            // Adjust start/end to be edges of the box (approx width 140, height 60)
-                            const startX = start.x + 140;
-                            const startY = start.y + 30;
-                            const endX = end.x;
-                            const endY = end.y + 30;
+                            // Adjust simple bezier
+                            const controlY = (startY + endY) / 2;
+                            let d = `M ${startX} ${startY} C ${startX} ${controlY}, ${endX} ${controlY}, ${endX} ${endY}`;
 
-                            // Bezier Curve Logic
-                            const controlPoint1 = { x: startX + (endX - startX) / 2, y: startY };
-                            const controlPoint2 = { x: startX + (endX - startX) / 2, y: endY };
-
-                            // Special case for loopbacks (Master -> Dash)
-                            let d = `M ${startX} ${startY} C ${controlPoint1.x} ${controlPoint1.y}, ${controlPoint2.x} ${controlPoint2.y}, ${endX} ${endY}`;
-
-                            if (source.id === 'MASTER_01' && targetId === 'DASH_01') {
-                                // Loopback curve above
-                                d = `M ${start.x + 70} ${start.y} Q ${start.x + 70} ${start.y - 40} ${start.x} ${start.y - 40} T ${end.x + 70} ${end.y}`;
+                            // POS Integration Line
+                            if (source.id === 'POS_SYNC' && targetId === 'SO_GEN') {
+                                d = `M ${start.x} ${start.y + 30} C ${start.x - 200} ${start.y + 30}, ${end.x + 400} ${end.y + 30}, ${end.x + 140} ${end.y + 30}`;
                             }
 
-                            lines.push({
-                                id: `${source.id}-${targetId}`,
-                                source: source.id,
-                                target: targetId,
-                                d: d
-                            });
+                            lines.push({ id: `${source.id}-${targetId}`, source: source.id, target: targetId, d });
                         });
                     }
                 });
                 return lines;
             }, []);
 
+            const isNodeVisible = (nodeId) => {
+                if (activeModule === 'ALL') return true;
+                return MODULES[activeModule].includes(nodeId);
+            };
+
             return (
                 <div className="flex w-full h-full bg-slate-50 relative">
-                    {/* --- Canvas Area --- */}
+                    {/* Module Filter Bar */}
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur shadow-lg border border-slate-200 rounded-full p-1.5 flex gap-1">
+                        {Object.keys(MODULES).map(mod => (
+                            <button
+                                key={mod}
+                                onClick={() => { setActiveModule(mod); setSelectedNode(null); }}
+                                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${activeModule === mod ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}`}
+                            >
+                                {mod === 'ALL' ? 'FULL SYSTEM' : mod}
+                            </button>
+                        ))}
+                    </div>
                     <div className="flex-1 overflow-hidden bg-grid relative cursor-move"
-                        onWheel={(e) => setZoom(Math.min(2, Math.max(0.5, zoom + (e.deltaY * -0.001))))}
+                        onWheel={(e) => setZoom(Math.min(2, Math.max(0.4, zoom + (e.deltaY * -0.001))))}
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseUp}
                     >
-                        <div
-                            className="absolute top-0 left-0 transition-transform duration-75 ease-out origin-top-left"
-                            style={{
-                                width: '2000px',
-                                height: '1500px',
-                                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                                transformOrigin: '0 0'
-                            }}
-                        >
-                            {/* SVG Layer for Connections */}
+                        <div className="absolute top-0 left-0 transition-transform duration-75 ease-out origin-top-left"
+                            style={{ width: '2500px', height: '3500px', transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}>
+
                             <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
                                 <defs>
-                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                        <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
-                                    </marker>
-                                    <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                        <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
-                                    </marker>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" /></marker>
+                                    <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" /></marker>
                                 </defs>
                                 {connections.map(line => {
                                     const isActive = selectedNode && (line.source === selectedNode.id || line.target === selectedNode.id);
-                                    const isHovered = hoveredNode && (line.source === hoveredNode || line.target === hoveredNode);
-
+                                    const isVisible = isNodeVisible(line.source) && isNodeVisible(line.target);
                                     return (
-                                        <g key={line.id}>
-                                            <path
-                                                d={line.d}
-                                                stroke={isActive || isHovered ? "#3b82f6" : "#cbd5e1"}
-                                                strokeWidth={isActive || isHovered ? "3" : "2"}
-                                                fill="none"
-                                                markerEnd={isActive || isHovered ? "url(#arrowhead-active)" : "url(#arrowhead)"}
-                                                className="transition-all duration-300"
-                                            />
-                                            {/* Animation for Integration or active paths */}
+                                        <g key={line.id} style={{ opacity: isVisible ? 1 : 0.05, transition: 'opacity 0.3s' }}>
+                                            <path d={line.d} stroke={isActive ? "#3b82f6" : "#cbd5e1"} strokeWidth={isActive ? "3" : "2"} fill="none" markerEnd={isActive ? "url(#arrowhead-active)" : "url(#arrowhead)"} className="transition-all duration-300" />
                                             {isActive && (
                                                 <circle r="4" fill="#3b82f6">
                                                     <animateMotion dur="1s" repeatCount="indefinite" path={line.d} />
@@ -580,7 +643,6 @@
                                 })}
                             </svg>
 
-                            {/* Node Layer */}
                             {SYSTEM_DATA.flowchart.map(node => {
                                 if (!NODE_POSITIONS[node.id]) return null;
                                 const pos = NODE_POSITIONS[node.id];
@@ -588,34 +650,49 @@
                                 const isHovered = hoveredNode === node.id;
                                 const phaseColor = node.phase === 'phase_1' ? 'border-b-4 border-b-blue-500' : 'border-b-4 border-b-purple-500';
 
+                                const isVisible = isNodeVisible(node.id);
+
                                 return (
-                                    <div
-                                        key={node.id}
+                                    <div key={node.id}
                                         onClick={() => setSelectedNode(node)}
                                         onMouseEnter={() => setHoveredNode(node.id)}
                                         onMouseLeave={() => setHoveredNode(null)}
                                         className={`absolute w-[140px] p-3 rounded-lg shadow-sm border bg-white cursor-pointer transition-all duration-300 z-10 hover:shadow-lg ${phaseColor} ${isSelected ? 'ring-2 ring-blue-500 scale-105 shadow-xl' : 'border-slate-200'}`}
-                                        style={{ left: pos.x, top: pos.y }}
+                                        style={{
+                                            left: pos.x,
+                                            top: pos.y,
+                                            opacity: isVisible ? 1 : 0.1,
+                                            pointerEvents: isVisible ? 'auto' : 'none',
+                                            filter: isVisible ? 'none' : 'grayscale(100%)'
+                                        }}
                                     >
-                                        <div className="flex justify-between items-start mb-1">
-                                            <span className="text-[10px] font-mono text-slate-400 uppercase">{node.id}</span>
-                                            {node.phase === 'phase_2' && <span className="w-2 h-2 rounded-full bg-purple-500"></span>}
+                                        <div className="text-[10px] font-mono text-slate-400 uppercase mb-1 flex items-center justify-between">
+                                            <span>{node.name.length < 15 ? node.id : ''}</span>
+                                            {node.type === 'master_data' && <Crown size={12} className="text-amber-500 fill-amber-200" />}
                                         </div>
                                         <div className="text-xs font-bold text-slate-700 leading-tight mb-2">{node.name}</div>
-                                        <div className={`text-[10px] px-1.5 py-0.5 rounded w-fit capitalize ${TYPE_COLORS[node.type] || 'bg-slate-100 text-slate-600'}`}>
-                                            {node.type.replace('_', ' ')}
-                                        </div>
+                                        <div className={`text-[9px] px-1.5 py-0.5 rounded w-fit capitalize ${TYPE_COLORS[node.type] || 'bg-slate-100 text-slate-600'}`}>{node.type.replace('_', ' ')}</div>
                                     </div>
                                 );
                             })}
-
-                            {/* Phase Labels */}
-                            <div className="absolute top-[50px] left-[50px] text-blue-900/20 text-6xl font-bold font-mono select-none pointer-events-none">PHASE 1: INVENTORY</div>
-                            <div className="absolute top-[680px] left-[50px] text-purple-900/20 text-6xl font-bold font-mono select-none pointer-events-none">PHASE 2: POS</div>
                         </div>
+
+                        {/* Static Phase Legend */}
+                        <div className="absolute bottom-4 left-4 bg-white/90 p-3 rounded-lg shadow border border-slate-200 backdrop-blur-sm z-50">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase mb-2">System Phases</div>
+                            <div className="flex items-center gap-3 mb-1">
+                                <span className="w-3 h-3 rounded-full bg-blue-500 shadow-sm ring-1 ring-blue-100"></span>
+                                <span className="text-xs font-semibold text-slate-700">Phase 1: Inventory System</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="w-3 h-3 rounded-full bg-purple-500 shadow-sm ring-1 ring-purple-100"></span>
+                                <span className="text-xs font-semibold text-slate-700">Phase 2: POS Integration</span>
+                            </div>
+                        </div>
+                        <div className="absolute top-4 left-4 bg-white/80 p-2 rounded shadow text-xs font-mono">Full System Detailed Flow</div>
                     </div>
 
-                    {/* --- Inspector Panel (Right) --- */}
+                    {/* Inspector Panel - Rich Version */}
                     <div className="w-80 bg-white border-l border-slate-200 shadow-xl flex flex-col z-20">
                         {selectedNode ? (
                             <>
@@ -625,34 +702,20 @@
                                         <button onClick={() => setSelectedNode(null)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
                                     </div>
                                     <h2 className="text-xl font-bold text-slate-800 mb-1">{selectedNode.name}</h2>
-                                    <div className="flex gap-2">
-                                        <span className={`text-xs px-2 py-0.5 rounded-full capitalize border ${TYPE_COLORS[selectedNode.type]}`}>
-                                            {selectedNode.type.replace('_', ' ')}
-                                        </span>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full border ${selectedNode.phase === 'phase_1' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-purple-50 text-purple-600 border-purple-200'}`}>
-                                            {SYSTEM_DATA.phases[selectedNode.phase].name.split(' ')[0]}
-                                        </span>
-                                    </div>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full capitalize border ${TYPE_COLORS[selectedNode.type]}`}>{selectedNode.type.replace('_', ' ')}</span>
                                 </div>
-
                                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                                    {/* Animation Preview */}
-                                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                                        <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-slate-700">
+
+                                    {/* Animation Info */}
+                                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
                                             <PlayCircle size={16} className="text-blue-500" />
-                                            Micro-Animation
+                                            <span>Animation</span>
                                         </div>
-                                        <div className="h-24 bg-white rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden relative">
-                                            <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:8px_8px] opacity-50"></div>
-                                            {/* Key Feature: Dynamic Animation Keyframe Injection */}
-                                            <div key={selectedNode.id} className={`w-12 h-12 bg-blue-500 rounded-lg shadow-lg flex items-center justify-center text-white anim-${selectedNode.animation}`}>
-                                                <Activity size={20} />
-                                            </div>
-                                        </div>
-                                        <div className="text-center mt-2 text-xs font-mono text-slate-400">{selectedNode.animation}</div>
+                                        <div className="text-xs font-mono text-slate-400">{selectedNode.animation}</div>
                                     </div>
 
-                                    {/* Data Logic */}
+                                    {/* Data Flow Section */}
                                     {(selectedNode.inputs || selectedNode.data_sources || selectedNode.data_flow) && (
                                         <div>
                                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -661,25 +724,25 @@
                                             <div className="space-y-2">
                                                 {selectedNode.inputs && (
                                                     <div className="text-sm">
-                                                        <span className="font-semibold text-slate-600">Inputs:</span>
-                                                        <div className="flex flex-wrap gap-1 mt-1">
-                                                            {selectedNode.inputs.map(i => <span key={i} className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-xs">{i}</span>)}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {selectedNode.outputs && (
-                                                    <div className="text-sm">
-                                                        <span className="font-semibold text-slate-600">Outputs:</span>
-                                                        <div className="flex flex-wrap gap-1 mt-1">
-                                                            {selectedNode.outputs.map(i => <span key={i} className="px-1.5 py-0.5 bg-green-50 text-green-700 rounded font-mono text-xs">{i}</span>)}
+                                                        <span className="font-semibold text-slate-600 block text-xs mb-1">INPUTS</span>
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {selectedNode.inputs.map(i => <span key={i} className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-[10px] border border-slate-200">{i}</span>)}
                                                         </div>
                                                     </div>
                                                 )}
                                                 {selectedNode.data_sources && (
                                                     <div className="text-sm">
-                                                        <span className="font-semibold text-slate-600">Sources:</span>
-                                                        <div className="flex flex-wrap gap-1 mt-1">
-                                                            {selectedNode.data_sources.map(i => <span key={i} className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded font-mono text-xs">{i}</span>)}
+                                                        <span className="font-semibold text-slate-600 block text-xs mb-1">SOURCES</span>
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {selectedNode.data_sources.map(i => <span key={i} className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded font-mono text-[10px] border border-indigo-100">{i}</span>)}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {selectedNode.data_flow && (
+                                                    <div className="text-sm">
+                                                        <span className="font-semibold text-slate-600 block text-xs mb-1">LOGIC</span>
+                                                        <div className="bg-slate-50 p-2 rounded border border-slate-200 font-mono text-[10px] text-slate-600">
+                                                            {JSON.stringify(selectedNode.data_flow).replace(/{|}|"/g, '').replace(/:/g, ': ')}
                                                         </div>
                                                     </div>
                                                 )}
@@ -687,67 +750,45 @@
                                         </div>
                                     )}
 
-                                    {/* Actor/Logic */}
-                                    {selectedNode.actor && (
-                                        <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 text-sm text-amber-900 flex items-start gap-2">
-                                            <ShieldCheck size={16} className="mt-0.5 shrink-0" />
-                                            <div>
-                                                <div className="font-bold">Restricted Actor</div>
-                                                <div>Action performed by {selectedNode.actor}</div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Profiling Visualization */}
-                                    {selectedNode.id === 'PROFILE_01' && selectedNode.example_data?.profiles && (
-                                        <div className="mt-4 border-t border-slate-100 pt-4">
+                                    {/* Warehouse Visualizer - Specific Check */}
+                                    {selectedNode.id === 'STORAGE_01' && selectedNode.example_data?.warehouses && (
+                                        <div className="mb-6">
                                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                                <ShieldCheck size={14} /> Authorized Users
+                                                <Icons.Layers size={14} /> Warehouse Hierarchy
                                             </h3>
-                                            <div className="space-y-2">
-                                                {selectedNode.example_data.profiles.map((p) => (
-                                                    <div key={p.id} className="bg-white rounded border border-slate-200 p-2 flex items-center gap-2 shadow-sm">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white
-                                                            ${p.status === 'active' ? 'bg-blue-500' : 'bg-slate-400'}`}>
-                                                            {p.name.split(' ').map(n => n[0]).join('')}
+                                            <div className="space-y-4">
+                                                {selectedNode.example_data.warehouses.map((wh, whIdx) => (
+                                                    <div key={whIdx} className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                                                        <div className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-2">
+                                                            <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                                                            {wh.name}
                                                         </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="text-xs font-bold text-slate-700 truncate">{p.name}</div>
-                                                            <div className="text-[10px] text-slate-500 truncate">{p.role} • {p.level}</div>
-                                                        </div>
-                                                        <div className={`w-2 h-2 rounded-full ${p.status === 'active' ? 'bg-green-500' : 'bg-amber-400'}`}></div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
 
-                                    {/* Warehouse Visualization */}
-                                    {selectedNode.id === 'STORAGE_01' && selectedNode.example_data?.layout && (
-                                        <div className="mt-4 border-t border-slate-100 pt-4">
-                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                                <Layers size={14} /> Warehouse Grid
-                                            </h3>
-                                            <div className="space-y-3">
-                                                {selectedNode.example_data.layout.map((zone, i) => (
-                                                    <div key={i} className="bg-slate-50 rounded border border-slate-200 p-2">
-                                                        <div className="text-xs font-bold text-slate-600 mb-2">{zone.zone}</div>
-                                                        <div className="grid grid-cols-3 gap-2">
-                                                            {zone.bins.map(bin => (
-                                                                <div key={bin.id}
-                                                                    className={`p-2 rounded text-[10px] flex flex-col items-center justify-center border h-16 text-center transition-colors
-                                                                    ${bin.status === 'occupied' ? 'bg-blue-100 border-blue-200 text-blue-700' :
-                                                                            bin.status === 'maintenance' ? 'bg-red-50 border-red-100 text-red-400' : 'bg-white border-slate-200 text-slate-400'}`}
-                                                                >
-                                                                    <div className="font-mono font-bold">{bin.id}</div>
-                                                                    {bin.status === 'occupied' ? (
-                                                                        <div className="scale-75 leading-tight mt-1">
-                                                                            <div className="truncate w-full">{bin.item}</div>
-                                                                            <div className="font-bold opacity-75">x{bin.qty}</div>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className="text-[8px] uppercase mt-1">{bin.status}</div>
-                                                                    )}
+                                                        {/* Zones Loop */}
+                                                        <div className="space-y-3 pl-3 border-l-2 border-slate-200 ml-1">
+                                                            {wh.zones.map((zone, zIdx) => (
+                                                                <div key={zIdx}>
+                                                                    <div className="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">{zone.name}</div>
+
+                                                                    {/* Racks Loop */}
+                                                                    <div className="space-y-2">
+                                                                        {zone.racks.map((rack, rIdx) => (
+                                                                            <div key={rIdx} className="bg-white border border-slate-100 rounded p-2 shadow-sm">
+                                                                                <div className="text-[9px] font-mono text-slate-400 mb-1">RACK: {rack.id}</div>
+                                                                                <div className="grid grid-cols-2 gap-2">
+                                                                                    {rack.bins.map(bin => (
+                                                                                        <div key={bin.id}
+                                                                                            className={`p-2 rounded border text-center relative group
+                                                                                            ${bin.status === 'occupied' ? 'bg-blue-50 border-blue-200 text-blue-700' :
+                                                                                                    bin.status === 'maintenance' ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+                                                                                            <div className="text-[9px] font-mono">{bin.id}</div>
+                                                                                            {bin.status === 'occupied' && <div className="text-[8px] font-bold truncate mt-0.5">{bin.item}</div>}
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -757,14 +798,52 @@
                                         </div>
                                     )}
 
-                                    {/* Example Data Payload */}
+                                    {/* User Profiling Visualizer */}
+                                    {selectedNode.id === 'PROFILE_01' && selectedNode.example_data?.profiles && (
+                                        <div className="mb-6">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                <Icons.ShieldCheck size={14} /> Active Roles
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {selectedNode.example_data.profiles.map(p => (
+                                                    <div key={p.id} className="flex items-center gap-3 p-2 bg-slate-50 rounded border border-slate-200 shadow-sm">
+                                                        <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                                                            <img src={p.img} alt="usr" className="w-full h-full object-cover" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-[10px] font-bold text-slate-700">{p.role.replace('_', ' ')}</div>
+                                                            <div className="text-[9px] font-mono text-slate-400">{p.id} • <span className="text-green-600 font-bold">{p.access}</span></div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Actor Information */}
+                                    {selectedNode.actor && (
+                                        <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 text-sm text-amber-900 flex items-start gap-2">
+                                            <ShieldCheck size={16} className="mt-0.5 shrink-0" />
+                                            <div>
+                                                <div className="font-bold text-xs uppercase">Restricted Actor</div>
+                                                <div className="text-xs mt-0.5">{selectedNode.actor}</div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Example Payload Section */}
                                     {selectedNode.example_data && (
-                                        <div className="mt-4">
+                                        <div>
                                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                                                 <FileText size={14} /> Example Payload
                                             </h3>
-                                            <div className="bg-slate-900 rounded-lg p-3 overflow-x-auto border border-slate-800 shadow-inner">
-                                                <pre className="text-[10px] mono text-green-400 leading-relaxed">
+                                            <div className="bg-slate-900 rounded-lg p-3 overflow-x-auto border border-slate-800 shadow-inner group relative">
+                                                <div className="absolute top-2 right-2 flex gap-1">
+                                                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                                                    <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                                                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                                                </div>
+                                                <pre className="text-[10px] font-mono text-green-400 leading-relaxed mt-2">
                                                     {JSON.stringify(selectedNode.example_data, null, 2)}
                                                 </pre>
                                             </div>
@@ -775,17 +854,12 @@
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
                                 <Layers size={48} strokeWidth={1} className="mb-4 opacity-50" />
-                                <h3 className="font-semibold text-slate-600">Interactive Flowchart</h3>
-                                <p className="text-sm mt-2">Click on any node in the diagram to inspect its logic, data schema, and animation style.</p>
-                                <div className="mt-8 text-xs font-mono bg-slate-50 p-3 rounded border border-slate-100 text-left w-full">
-                                    <div className="font-bold mb-1">Legend:</div>
-                                    <div className="flex items-center gap-2 mb-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Phase 1 (Inventory)</div>
-                                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500"></span> Phase 2 (POS)</div>
-                                </div>
+                                <h3 className="font-semibold text-slate-600">Full System Overview</h3>
+                                <p className="text-sm mt-2">Click nodes to inspect data structure.</p>
                             </div>
                         )}
                     </div>
-                </div>
+                </div >
             );
         };
 
