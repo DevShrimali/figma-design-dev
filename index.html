@@ -301,9 +301,21 @@
                 },
 
                 // --- DASHBOARD ---
-                { "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard", "data_sources": ["items", "stock_ledger"], "animation": "card_stagger_load", "next": ["VENDOR_MST", "ITEM_MST", "INWARD_ENTRY", "SO_GEN", "STOCK_VIEW_01"], "example_data": { "widgets": { "low_stock": 5, "todays_sales": 12000 } } },
+                { "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard", "data_sources": ["items", "stock_ledger"], "animation": "card_stagger_load", "next": ["TAX_MST", "VENDOR_MST", "ITEM_MST", "INWARD_ENTRY", "SO_GEN", "STOCK_VIEW_01"], "example_data": { "widgets": { "low_stock": 5, "todays_sales": 12000 } } },
 
                 // --- MASTER DATA WING ---
+                {
+                    "id": "TAX_MST", "phase": "phase_2", "type": "master_data", "name": "Tax Config",
+                    "animation": "form_step_reveal", "next": ["ITEM_MST", "POS_TAX"],
+                    "example_data": {
+                        "standard": "WA State Sales Tax",
+                        "rules": [
+                            { "code": "WA_STATE", "rate": 0.065, "type": "State Tax" },
+                            { "code": "SEATTLE_LOC", "rate": 0.0375, "type": "City Tax" },
+                            { "code": "PHARMA_RX", "rate": 0.00, "type": "Exempt" }
+                        ]
+                    }
+                },
                 {
                     "id": "VENDOR_MST", "phase": "phase_1", "type": "master_data", "name": "Vendor Master",
                     "animation": "form_step_reveal", "next": ["ITEM_MST"],
@@ -311,8 +323,8 @@
                 },
                 {
                     "id": "ITEM_MST", "phase": "phase_1", "type": "master_data", "name": "Item Master",
-                    "inputs": ["sku", "name", "price", "expiry"], "animation": "form_step_reveal", "next": ["MASTER_VAL"],
-                    "example_data": { "sku": "RX-IBU-200", "name": "Ibuprofen 200mg", "price": 12.50, "type": "Pharma" }
+                    "inputs": ["sku", "name", "price", "expiry", "tax_cat"], "animation": "form_step_reveal", "next": ["MASTER_VAL"],
+                    "example_data": { "sku": "RX-IBU-200", "name": "Ibuprofen 200mg", "price": 12.50, "type": "Pharma", "tax_cat": "GST_18" }
                 },
                 {
                     "id": "MASTER_VAL", "phase": "phase_1", "type": "calculation", "name": "Duplication Check",
@@ -489,6 +501,7 @@
             "END_AUDIT": { x: 350, y: 1400 },
 
             // --- POS FLOW (900) ---
+            "TAX_MST": { x: 1150, y: 550 },    // Moved beside Tax Calc
             "POS_START": { x: 900, y: 50 },
             "POS_01": { x: 900, y: 150 },
             "POS_STOCK": { x: 900, y: 250 },
@@ -520,7 +533,7 @@
             INWARD: ['INWARD_ENTRY', 'PUTAWAY'],
             OUTWARD: ['SO_GEN'],
             POS: ['POS_START', 'POS_01', 'POS_STOCK', 'POS_ADD', 'POS_DISC', 'POS_TAX', 'POS_PAY_NOW', 'POS_PAY_LATER', 'POS_GATE', 'POS_RCPT', 'POS_SYNC'],
-            ADMIN: ['START', 'AUTH_01', 'AUTH_VAL', 'COMPANY_MST', 'STAFF_PROFILE', 'DASH_01', 'VENDOR_MST', 'ITEM_MST', 'MASTER_VAL', 'STORAGE_01', 'STOCK_VIEW_01', 'STOCK_LEDGER_01', 'AUDIT_01', 'END_AUDIT']
+            ADMIN: ['START', 'AUTH_01', 'AUTH_VAL', 'COMPANY_MST', 'STAFF_PROFILE', 'DASH_01', 'TAX_MST', 'VENDOR_MST', 'ITEM_MST', 'MASTER_VAL', 'STORAGE_01', 'STOCK_VIEW_01', 'STOCK_LEDGER_01', 'AUDIT_01', 'END_AUDIT']
         };
 
         const FlowchartApp = () => {
@@ -565,6 +578,11 @@
                             // Adjust simple bezier
                             const controlY = (startY + endY) / 2;
                             let d = `M ${startX} ${startY} C ${startX} ${controlY}, ${endX} ${controlY}, ${endX} ${endY}`;
+
+                            // Tax MST to POS TAX (Long range connection)
+                            if (source.id === 'TAX_MST' && targetId === 'POS_TAX') {
+                                d = `M ${start.x + 140} ${start.y + 30} C ${start.x + 400} ${start.y - 100}, ${end.x - 200} ${end.y - 100}, ${end.x + 70} ${end.y}`;
+                            }
 
                             // POS Integration Line (Sync to SO)
                             if (source.id === 'POS_SYNC' && targetId === 'SO_GEN') {
