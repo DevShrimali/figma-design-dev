@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Full Flow Visualization</title>
+    <title>UIMS - Universal Inventory Management Module</title>
 
     <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -270,7 +270,7 @@
             },
             "flowchart": [
                 // --- AUTHENTICATION ---
-                { "id": "START", "phase": "phase_1", "type": "system", "name": "Start System", "animation": "fade_in_center", "next": ["AUTH_01"] },
+                { "id": "START", "phase": "phase_1", "type": "system", "name": "Enlight Vision UIMS", "animation": "fade_in_center", "next": ["AUTH_01"] },
                 {
                     "id": "AUTH_01", "phase": "phase_1", "type": "screen", "name": "Login Screen",
                     "inputs": ["email", "password"], "animation": "fade_in_center", "next": ["AUTH_VAL"],
@@ -278,12 +278,30 @@
                 },
                 {
                     "id": "AUTH_VAL", "phase": "phase_1", "type": "system", "name": "Validate Creds",
-                    "data_flow": { "check": "db_hash_match" }, "animation": "pulse_line", "next": ["PROFILE_01"],
+                    "data_flow": { "check": "db_hash_match" }, "animation": "pulse_line", "next": ["COMPANY_MST"],
                     "example_data": { "user_id": "EMP-882", "role": "MANAGER", "auth_status": "SUCCESS" }
                 },
 
+                // --- SAAS MASTERS (Context Loading) ---
+                {
+                    "id": "COMPANY_MST", "phase": "phase_1", "type": "master_data", "name": "EV Mart",
+                    "animation": "fade_in_center", "next": ["STAFF_PROFILE"],
+                    "example_data": {
+                        "company_id": "EV-US-992",
+                        "name": "EV Mart (US)",
+                        "address": { "street": "400 Broad St", "city": "Seattle", "pincode": "98109", "state": "WA" },
+                        "tax_config": { "tax_id": "EIN-99-887766", "region": "Washington (State)" },
+                        "biz_type": "Food & Pharma"
+                    }
+                },
+                {
+                    "id": "STAFF_PROFILE", "phase": "phase_1", "type": "compliance", "name": "Staff Profiling",
+                    "animation": "fade_in_center", "next": ["DASH_01"],
+                    "example_data": { "profiles": [{ "role": "STORE_MANAGER", "access": "FULL_ACCESS" }] }
+                },
+
                 // --- DASHBOARD ---
-                { "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard", "data_sources": ["items", "stock_ledger"], "animation": "card_stagger_load", "next": ["VENDOR_MST", "ITEM_MST", "PO_GEN", "SO_GEN", "STOCK_VIEW_01"], "example_data": { "widgets": { "low_stock": 5, "todays_sales": 12000 } } },
+                { "id": "DASH_01", "phase": "phase_1", "type": "dashboard", "name": "Inventory Dashboard", "data_sources": ["items", "stock_ledger"], "animation": "card_stagger_load", "next": ["VENDOR_MST", "ITEM_MST", "INWARD_ENTRY", "SO_GEN", "STOCK_VIEW_01"], "example_data": { "widgets": { "low_stock": 5, "todays_sales": 12000 } } },
 
                 // --- MASTER DATA WING ---
                 {
@@ -293,13 +311,13 @@
                 },
                 {
                     "id": "ITEM_MST", "phase": "phase_1", "type": "master_data", "name": "Item Master",
-                    "inputs": ["sku", "name", "price"], "animation": "form_step_reveal", "next": ["MASTER_VAL"],
-                    "example_data": { "sku": "NIKE-AIR-01", "name": "Running Shoes", "price": 120.00 }
+                    "inputs": ["sku", "name", "price", "expiry"], "animation": "form_step_reveal", "next": ["MASTER_VAL"],
+                    "example_data": { "sku": "RX-IBU-200", "name": "Ibuprofen 200mg", "price": 12.50, "type": "Pharma" }
                 },
                 {
                     "id": "MASTER_VAL", "phase": "phase_1", "type": "calculation", "name": "Duplication Check",
                     "logic": ["exists(sku)"], "animation": "pulse_line", "next": ["STORAGE_01"],
-                    "example_data": { "sku_check": "NIKE-AIR-01", "is_duplicate": false }
+                    "example_data": { "sku_check": "RX-IBU-200", "is_duplicate": false }
                 },
                 {
                     "id": "STORAGE_01", "phase": "phase_1", "type": "master_data", "name": "Warehouse Model",
@@ -307,32 +325,32 @@
                     "example_data": {
                         "warehouses": [
                             {
-                                "name": "Central Hub",
+                                "name": "Seattle DC",
                                 "zones": [
                                     {
-                                        "name": "Zone A (Electronics)",
+                                        "name": "Zone A (Cold Chain)",
                                         "racks": [
                                             {
-                                                "id": "R1", "bins": [
-                                                    { "id": "A-R1-01", "status": "occupied", "item": "Laptop" },
-                                                    { "id": "A-R1-02", "status": "empty" }
+                                                "id": "C1", "bins": [
+                                                    { "id": "A-C1-01", "status": "occupied", "item": "Insulin Pen" },
+                                                    { "id": "A-C1-02", "status": "empty" }
                                                 ]
                                             },
                                             {
-                                                "id": "R2", "bins": [
-                                                    { "id": "A-R2-01", "status": "occupied", "item": "Monitor" },
-                                                    { "id": "A-R2-02", "status": "maintenance" }
+                                                "id": "C2", "bins": [
+                                                    { "id": "A-C2-01", "status": "occupied", "item": "Vaccine" },
+                                                    { "id": "A-C2-02", "status": "maintenance" }
                                                 ]
                                             }
                                         ]
                                     },
                                     {
-                                        "name": "Zone B (Apparel)",
+                                        "name": "Zone B (Ambient Food)",
                                         "racks": [
                                             {
                                                 "id": "R1", "bins": [
-                                                    { "id": "B-R1-01", "status": "occupied", "item": "Jeans" },
-                                                    { "id": "B-R1-02", "status": "occupied", "item": "T-Shirt" }
+                                                    { "id": "B-R1-01", "status": "occupied", "item": "Org. Chips" },
+                                                    { "id": "B-R1-02", "status": "occupied", "item": "Energy Bar" }
                                                 ]
                                             }
                                         ]
@@ -346,66 +364,31 @@
                 // --- VIEW STOCK ---
                 { "id": "STOCK_VIEW_01", "phase": "phase_1", "type": "screen", "name": "View Stock", "animation": "card_stagger_load", "next": [], "example_data": { "filter": "Category=Shoes", "results": 45 } },
 
-                // --- INWARD PROCESS (DETAILED) ---
+                // --- INWARD PROCESS (SIMPLIFIED) ---
                 {
-                    "id": "PO_GEN", "phase": "phase_1", "type": "transaction", "name": "Raise PO",
-                    "inputs": ["vendor", "items"], "animation": "slide_up_form", "next": ["GATE_IN"],
-                    "example_data": { "po_id": "PO-9921", "status": "ISSUED" }
+                    "id": "INWARD_ENTRY", "phase": "phase_1", "type": "transaction", "name": "Invoice",
+                    "inputs": ["method", "ref_no", "items"], "animation": "slide_up_form", "next": ["PUTAWAY"],
+                    "example_data": {
+                        "in_id": "INV-1002",
+                        "method": "Job Work (JW)",
+                        "allowed_methods": ["Purchase Order", "Production Voucher", "Petty Cash", "Job Work", "Sales Return"],
+                        "items_count": 120
+                    }
                 },
                 {
-                    "id": "GATE_IN", "phase": "phase_1", "type": "transaction", "name": "Gate Entry",
-                    "inputs": ["vehicle_no", "driver"], "animation": "slide_up_form", "next": ["INWARD_ENTRY"],
-                    "example_data": { "gate_pass": "GP-101", "vehicle": "MH-04-AB-1234" }
-                },
-                {
-                    "id": "INWARD_ENTRY", "phase": "phase_1", "type": "transaction", "name": "Inward GRN",
-                    "inputs": ["po_ref", "challan"], "animation": "slide_up_form", "next": ["INWARD_QC"],
-                    "example_data": { "grn_id": "GRN-772", "items_received": 50 }
-                },
-                {
-                    "id": "INWARD_QC", "phase": "phase_1", "type": "approval", "name": "Quality Check",
-                    "actor": "QC Inspector", "animation": "checkmark_scale_in", "next": ["PUTAWAY"],
-                    "example_data": { "qc_id": "QC-112", "defects": 0, "verdict": "PASS" }
-                },
-                {
-                    "id": "PUTAWAY", "phase": "phase_1", "type": "transaction", "name": "Bin Putaway",
+                    "id": "PUTAWAY", "phase": "phase_1", "type": "transaction", "name": "Inventory",
                     "data_flow": { "assign": "bin_id" }, "animation": "slide_up_form", "next": ["STOCK_LEDGER_01"],
-                    "example_data": { "item": "Nike Air", "target_bin": "A-12" }
+                    "example_data": { "item": "Ibuprofen", "target_bin": "B-R1-05" }
                 },
 
-                // --- OUTWARD PROCESS (DETAILED) ---
+                // --- OUTWARD PROCESS (SIMPLIFIED) ---
                 {
                     "id": "SO_GEN", "phase": "phase_1", "type": "transaction", "name": "Sales Order",
-                    "inputs": ["customer", "items"], "animation": "slide_up_form", "next": ["ALLOC_CHECK"],
+                    "inputs": ["customer", "items"], "animation": "slide_up_form", "next": ["STOCK_LEDGER_01"],
                     "example_data": { "so_id": "SO-551", "customer": "John Doe" }
                 },
-                {
-                    "id": "ALLOC_CHECK", "phase": "phase_1", "type": "calculation", "name": "Stock Alloc",
-                    "logic": ["stock >= req"], "animation": "number_count_up", "next": ["PICK_GEN"],
-                    "example_data": { "available": 50, "allocated": 2 }
-                },
-                {
-                    "id": "PICK_GEN", "phase": "phase_1", "type": "transaction", "name": "Pick List",
-                    "data_flow": { "output": "pdf_slip" }, "animation": "slide_up_form", "next": ["PACKING"],
-                    "example_data": { "pick_id": "APK-11", "picker": "Bob" }
-                },
-                {
-                    "id": "PACKING", "phase": "phase_1", "type": "transaction", "name": "Packing",
-                    "inputs": ["box_size", "label"], "animation": "slide_up_form", "next": ["DISPATCH"],
-                    "example_data": { "box_id": "BX-90", "weight": "2kg" }
-                },
-                {
-                    "id": "DISPATCH", "phase": "phase_1", "type": "transaction", "name": "Dispatch",
-                    "inputs": ["courier", "awb"], "animation": "green_tick_fade", "next": ["STOCK_LEDGER_01"],
-                    "example_data": { "awb": "FEDEX-112233", "shipped": true }
-                },
 
-                // --- CORE SYSTEM & PROFILING ---
-                {
-                    "id": "PROFILE_01", "phase": "phase_1", "type": "compliance", "name": "User Profiling",
-                    "animation": "fade_in_center", "next": ["DASH_01"],
-                    "example_data": { "profiles": [{ "role": "MANAGER", "access": "FULL" }] }
-                },
+                // --- CORE SYSTEM ---
                 {
                     "id": "STOCK_LEDGER_01", "phase": "phase_1", "type": "system", "name": "Inv Ledger",
                     "data_structure": ["opening", "in/out", "closing"], "animation": "row_expand_fade", "next": ["AUDIT_01"],
@@ -436,19 +419,26 @@
                     "example_data": { "total": 120.00 }
                 },
                 {
-                    "id": "POS_DISC", "phase": "phase_2", "type": "calculation", "name": "Coupons",
-                    "logic": ["validate"], "animation": "number_count_up", "next": ["POS_TAX"],
-                    "example_data": { "disc": 12.00 }
+                    "id": "POS_DISC", "phase": "phase_2", "type": "calculation", "name": "Discount",
+                    "logic": ["Per Item", "Fixed Amount", "Overall %"], "animation": "number_count_up", "next": ["POS_TAX"],
+                    "example_data": { "type": "Overall %", "value": 10, "disc_amt": 12.00 }
                 },
                 {
                     "id": "POS_TAX", "phase": "phase_2", "type": "calculation", "name": "Tax Calc",
-                    "logic": ["gst_18"], "animation": "number_count_up", "next": ["POS_PAY"],
-                    "example_data": { "tax": 19.44 }
+                    "logic": ["sales_tax_wa"], "animation": "number_count_up", "next": ["POS_PAY_NOW", "POS_PAY_LATER"],
+                    "example_data": { "tax": 10.10 }
                 },
                 {
-                    "id": "POS_PAY", "phase": "phase_2", "type": "payment", "name": "Payment",
-                    "methods": ["card", "upi"], "animation": "slide_up_form", "next": ["POS_GATE"],
-                    "example_data": { "amt": 127.44 }
+                    "id": "POS_PAY_NOW", "phase": "phase_2", "type": "payment", "name": "Pay Now",
+                    "methods": ["Credit Card", "Cash", "UPI"],
+                    "animation": "slide_up_form", "next": ["POS_GATE"],
+                    "example_data": { "amt": 127.44, "status": "Paid" }
+                },
+                {
+                    "id": "POS_PAY_LATER", "phase": "phase_2", "type": "approval", "name": "Pay Later",
+                    "logic": ["Validate(Name, Contact, TaxID)"],
+                    "animation": "shake_horizontal", "next": ["POS_RCPT"],
+                    "example_data": { "customer": "John Doe", "credit_limit": "OK" }
                 },
                 {
                     "id": "POS_GATE", "phase": "phase_2", "type": "integration", "name": "Gateway",
@@ -482,22 +472,16 @@
             "STORAGE_01": { x: 50, y: 700 },
 
             // --- RIGHT WING: VIEW (650) ---
+            "COMPANY_MST": { x: 650, y: 50 },  // Top: Company Context
+            "STAFF_PROFILE": { x: 650, y: 150 }, // Below: Staff Context
             "STOCK_VIEW_01": { x: 650, y: 380 },
-            "PROFILE_01": { x: 650, y: 150 },
 
             // --- INWARD CHAIN (200) ---
-            "PO_GEN": { x: 200, y: 550 },
-            "GATE_IN": { x: 200, y: 650 },
             "INWARD_ENTRY": { x: 200, y: 750 },
-            "INWARD_QC": { x: 200, y: 850 },
             "PUTAWAY": { x: 200, y: 950 },
 
             // --- OUTWARD CHAIN (550) ---
             "SO_GEN": { x: 550, y: 550 },
-            "ALLOC_CHECK": { x: 550, y: 650 },
-            "PICK_GEN": { x: 550, y: 750 },
-            "PACKING": { x: 550, y: 850 },
-            "DISPATCH": { x: 550, y: 950 },
 
             // --- MERGE POINT ---
             "STOCK_LEDGER_01": { x: 350, y: 1100 },
@@ -511,9 +495,10 @@
             "POS_ADD": { x: 900, y: 350 },
             "POS_DISC": { x: 900, y: 450 },
             "POS_TAX": { x: 900, y: 550 },
-            "POS_PAY": { x: 900, y: 650 },
-            "POS_GATE": { x: 900, y: 750 },
-            "POS_RCPT": { x: 900, y: 850 },
+            "POS_PAY_NOW": { x: 800, y: 650 },   // Split Left
+            "POS_PAY_LATER": { x: 1000, y: 650 }, // Split Right
+            "POS_GATE": { x: 800, y: 750 },      // Below Pay Now
+            "POS_RCPT": { x: 900, y: 850 },      // Merge back
             "POS_SYNC": { x: 900, y: 950 },
         };
 
@@ -532,10 +517,10 @@
 
         const MODULES = {
             ALL: [],
-            INWARD: ['PO_GEN', 'GATE_IN', 'INWARD_ENTRY', 'INWARD_QC', 'PUTAWAY'],
-            OUTWARD: ['SO_GEN', 'ALLOC_CHECK', 'PICK_GEN', 'PACKING', 'DISPATCH'],
-            POS: ['POS_START', 'POS_01', 'POS_STOCK', 'POS_ADD', 'POS_DISC', 'POS_TAX', 'POS_PAY', 'POS_GATE', 'POS_RCPT', 'POS_SYNC'],
-            ADMIN: ['START', 'AUTH_01', 'AUTH_VAL', 'DASH_01', 'VENDOR_MST', 'ITEM_MST', 'MASTER_VAL', 'STORAGE_01', 'STOCK_VIEW_01', 'PROFILE_01', 'STOCK_LEDGER_01', 'AUDIT_01', 'END_AUDIT']
+            INWARD: ['INWARD_ENTRY', 'PUTAWAY'],
+            OUTWARD: ['SO_GEN'],
+            POS: ['POS_START', 'POS_01', 'POS_STOCK', 'POS_ADD', 'POS_DISC', 'POS_TAX', 'POS_PAY_NOW', 'POS_PAY_LATER', 'POS_GATE', 'POS_RCPT', 'POS_SYNC'],
+            ADMIN: ['START', 'AUTH_01', 'AUTH_VAL', 'COMPANY_MST', 'STAFF_PROFILE', 'DASH_01', 'VENDOR_MST', 'ITEM_MST', 'MASTER_VAL', 'STORAGE_01', 'STOCK_VIEW_01', 'STOCK_LEDGER_01', 'AUDIT_01', 'END_AUDIT']
         };
 
         const FlowchartApp = () => {
@@ -581,9 +566,19 @@
                             const controlY = (startY + endY) / 2;
                             let d = `M ${startX} ${startY} C ${startX} ${controlY}, ${endX} ${controlY}, ${endX} ${endY}`;
 
-                            // POS Integration Line
+                            // POS Integration Line (Sync to SO)
                             if (source.id === 'POS_SYNC' && targetId === 'SO_GEN') {
                                 d = `M ${start.x} ${start.y + 30} C ${start.x - 200} ${start.y + 30}, ${end.x + 400} ${end.y + 30}, ${end.x + 140} ${end.y + 30}`;
+                            }
+
+                            // Pay Later Merge
+                            if (source.id === 'POS_PAY_LATER' && targetId === 'POS_RCPT') {
+                                d = `M ${startX} ${startY} C ${startX} ${startY + 50}, ${endX} ${startY + 50}, ${endX} ${endY}`;
+                            }
+
+                            // Pay Now Merge via Gate
+                            if (source.id === 'POS_GATE' && targetId === 'POS_RCPT') {
+                                d = `M ${startX} ${startY} C ${startX} ${startY + 50}, ${endX} ${startY + 50}, ${endX} ${endY}`;
                             }
 
                             lines.push({ id: `${source.id}-${targetId}`, source: source.id, target: targetId, d });
@@ -689,7 +684,17 @@
                                 <span className="text-xs font-semibold text-slate-700">Phase 2: POS Integration</span>
                             </div>
                         </div>
-                        <div className="absolute top-4 left-4 bg-white/80 p-2 rounded shadow text-xs font-mono">Full System Detailed Flow</div>
+                        <div className="absolute top-4 left-4 bg-white/80 p-2 rounded shadow text-xs font-mono">UIMS Architecture v1.0</div>
+
+                        {/* Zoom Controls */}
+                        <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-50">
+                            <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="bg-white p-2 rounded-full shadow-lg border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold w-10 h-10 flex items-center justify-center text-lg">
+                                +
+                            </button>
+                            <button onClick={() => setZoom(z => Math.max(0.4, z - 0.1))} className="bg-white p-2 rounded-full shadow-lg border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold w-10 h-10 flex items-center justify-center text-lg">
+                                -
+                            </button>
+                        </div>
                     </div>
 
                     {/* Inspector Panel - Rich Version */}
@@ -798,11 +803,47 @@
                                         </div>
                                     )}
 
-                                    {/* User Profiling Visualizer */}
-                                    {selectedNode.id === 'PROFILE_01' && selectedNode.example_data?.profiles && (
+                                    {/* Company Profile Visualizer */}
+                                    {selectedNode.id === 'COMPANY_MST' && selectedNode.example_data?.tax_config && (
                                         <div className="mb-6">
                                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                                <Icons.ShieldCheck size={14} /> Active Roles
+                                                <Icons.Activity size={14} /> Business Context
+                                            </h3>
+                                            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-3">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="w-8 h-8 rounded bg-amber-100 flex items-center justify-center text-amber-600 font-bold border border-amber-200 shrink-0">
+                                                        {selectedNode.example_data.name.substring(0, 1)}
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs font-bold text-slate-700">{selectedNode.example_data.name}</div>
+                                                        <div className="text-[10px] text-slate-500">{selectedNode.example_data.address.city}, {selectedNode.example_data.address.pincode}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="bg-white p-2 rounded border border-slate-100 shadow-sm">
+                                                        <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Business Type</div>
+                                                        <div className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1 py-0.5 rounded w-fit">{selectedNode.example_data.biz_type}</div>
+                                                    </div>
+                                                    <div className="bg-white p-2 rounded border border-slate-100 shadow-sm">
+                                                        <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Tax Region</div>
+                                                        <div className="text-[10px] font-mono text-slate-600 truncate">{selectedNode.example_data.tax_config.region}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-[9px] text-slate-400 pt-2 border-t border-slate-200 flex items-center gap-1">
+                                                    <Icons.ShieldCheck size={10} />
+                                                    Tax ID: {selectedNode.example_data.tax_config.tax_id}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Staff Profiling Visualizer */}
+                                    {selectedNode.id === 'STAFF_PROFILE' && selectedNode.example_data?.profiles && (
+                                        <div className="mb-6">
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                <Icons.ShieldCheck size={14} /> Active Staff Roles
                                             </h3>
                                             <div className="space-y-3">
                                                 {selectedNode.example_data.profiles.map(p => (
