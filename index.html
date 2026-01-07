@@ -270,7 +270,7 @@
             },
             "flowchart": [
                 // --- AUTHENTICATION ---
-                { "id": "START", "phase": "phase_1", "type": "system", "name": "Enlight Vision UIMS", "animation": "fade_in_center", "next": ["AUTH_01"] },
+                { "id": "START", "phase": "phase_1", "type": "system", "name": "Enlight Vision (SaaS Provider)", "animation": "fade_in_center", "next": ["AUTH_01"] },
                 {
                     "id": "AUTH_01", "phase": "phase_1", "type": "screen", "name": "Login Screen",
                     "inputs": ["email", "password"], "animation": "fade_in_center", "next": ["AUTH_VAL"],
@@ -305,7 +305,7 @@
 
                 // --- MASTER DATA WING ---
                 {
-                    "id": "TAX_MST", "phase": "phase_2", "type": "master_data", "name": "Tax Config",
+                    "id": "TAX_MST", "phase": "phase_1", "type": "master_data", "name": "Tax Config",
                     "animation": "form_step_reveal", "next": ["ITEM_MST", "POS_TAX"],
                     "example_data": {
                         "standard": "WA State Sales Tax",
@@ -464,7 +464,7 @@
                 },
                 {
                     "id": "POS_SYNC", "phase": "phase_2", "type": "integration", "name": "Inv Sync",
-                    "action": "api_post", "animation": "pulse_line", "next": ["SO_GEN"],
+                    "action": "api_post", "animation": "pulse_line", "next": [],
                     "example_data": { "sync": "done" }
                 }
             ]
@@ -501,7 +501,7 @@
             "END_AUDIT": { x: 350, y: 1400 },
 
             // --- POS FLOW (900) ---
-            "TAX_MST": { x: 1150, y: 550 },    // Moved beside Tax Calc
+            "TAX_MST": { x: -120, y: 380 },   // Moved Left of Vendor Master
             "POS_START": { x: 900, y: 50 },
             "POS_01": { x: 900, y: 150 },
             "POS_STOCK": { x: 900, y: 250 },
@@ -582,11 +582,6 @@
                             // Tax MST to POS TAX (Long range connection)
                             if (source.id === 'TAX_MST' && targetId === 'POS_TAX') {
                                 d = `M ${start.x + 140} ${start.y + 30} C ${start.x + 400} ${start.y - 100}, ${end.x - 200} ${end.y - 100}, ${end.x + 70} ${end.y}`;
-                            }
-
-                            // POS Integration Line (Sync to SO)
-                            if (source.id === 'POS_SYNC' && targetId === 'SO_GEN') {
-                                d = `M ${start.x} ${start.y + 30} C ${start.x - 200} ${start.y + 30}, ${end.x + 400} ${end.y + 30}, ${end.x + 140} ${end.y + 30}`;
                             }
 
                             // Pay Later Merge
