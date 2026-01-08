@@ -160,10 +160,12 @@
 
             50% {
                 opacity: 1;
+                transform: scaleX(0.98);
             }
 
             100% {
                 opacity: 0.5;
+                transform: scaleX(1);
             }
         }
 
@@ -235,6 +237,65 @@
             animation: card_stagger_load 0.4s ease-out forwards;
         }
     </style>
+
+    <!-- Analytics Tracking -->
+    <script>
+        (async function trackVisitor() {
+            const STORAGE_KEY = 'uims_page_analytics';
+
+            try {
+                // 1. Fetch IP
+                const response = await fetch('https://api.ipify.org?format=json');
+                if (!response.ok) throw new Error('IP fetch failed');
+                const data = await response.json();
+                const ip = data.ip;
+
+                // 2. Prepare Record
+                const visitRecord = {
+                    ip: ip,
+                    timestamp: new Date().toISOString(),
+                    path: window.location.pathname,
+                    userAgent: navigator.userAgent
+                };
+
+                // 3. Store in LocalStorage (Append)
+                let existingData = [];
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) existingData = JSON.parse(stored);
+                } catch (e) {
+                    console.warn('Could not parse existing analytics', e);
+                }
+
+                existingData.push(visitRecord);
+
+                // Limit to last 500 records to prevent quota issues
+                if (existingData.length > 500) {
+                    existingData = existingData.slice(-500);
+                }
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(existingData));
+                console.log('Visitor tracked:', ip);
+
+            } catch (err) {
+                console.error('Tracking failed:', err);
+                // Fallback for offline/blocked: track as "Unknown"
+                const fallbackRecord = {
+                    ip: 'Unknown/Offline',
+                    timestamp: new Date().toISOString(),
+                    path: window.location.pathname,
+                    userAgent: navigator.userAgent
+                };
+                let existingData = [];
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) existingData = JSON.parse(stored);
+                } catch (e) { }
+                existingData.push(fallbackRecord);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(existingData));
+            }
+        })();
+    </script>
 </head>
 
 <body class="bg-slate-50 text-slate-900 h-screen w-screen overflow-hidden">
